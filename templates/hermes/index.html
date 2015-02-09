@@ -1,0 +1,9 @@
+{%if board_list %}
+    <ul>
+    {% for board in board_list %}
+        <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>What! You trying to mug me?!</p>
+{% endif %}

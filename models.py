@@ -6,11 +6,19 @@ class Board(models.Model):
     def __str__(self):
         return self.title
 
-class Post(models.Model):
+class Thread(models.Model):
     board = models.ForeignKey(Board)
+    time = models.DateTimeField()
+
+    def __str__(self):
+        return self.board + self.time
+
+class Post(models.Model):
+    thread = models.ForeignKey(Thread)
     author = models.CharField(max_length=30)
     email = models.CharField(max_length=30)
-    post = models.CharField(max_length=1000)
+    text = models.CharField(max_length=1000)
+    time = models.DateTimeField()
 
     def __str__(self):
         return self.post

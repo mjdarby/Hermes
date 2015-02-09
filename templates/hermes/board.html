@@ -1,0 +1,16 @@
+
+<form action="{% url 'hermes:new' board.id %}" method="post">
+  {% csrf_token %}
+  <input type="text" name="text"/>
+  <input type="submit" value="post"/>
+</form>
+
+{%if threads %}
+    <ul>
+    {% for thread in threads %}
+        <li><a href="/threads/{{thread.id}}/">{{thread.title}}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>What! You trying to mug me?!</p>
+{% endif %}

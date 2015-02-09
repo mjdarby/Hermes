@@ -1,0 +1,9 @@
+{%if post_list %}
+    <ul>
+    {% for post in post_list %}
+        <li>{{post.text}}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>What! You trying to mug me?!</p>
+{% endif %}

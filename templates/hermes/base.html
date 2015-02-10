@@ -1,0 +1,14 @@
+{% extends 'bootstrap3/bootstrap3.html' %}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block bootstrap3_content %}
+  <div class="container-fluid">
+    {% block title %}{% endblock %}
+    {% block content %}{% endblock %}
+  </div>
+
+{% endblock %}

@@ -1,7 +1,20 @@
+<form action="{% url 'hermes:reply' board_id thread_id %}" method="post">
+  {% csrf_token %}
+  author: <input type="text" name="author"/><br/>
+  email: <input type="text" name="email"/><br/>
+  subject: <input type="text" name="subject"/><br/>
+  TEXT: <input type="textfield" name="text"/><br/>
+  <input type="submit" value="post"/>
+</form>
+
 {%if post_list %}
     <ul>
     {% for post in post_list %}
-        <li>{{post.text}}</li>
+        <li>
+	  <span>{{post.author}}</span>
+	  <span>{{post.title}}</span>
+	  <div>{{post.text}}</div>
+	</li>
     {% endfor %}
     </ul>
 {% else %}

@@ -20,7 +20,7 @@
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <div class="navbar-header">
-      <a class="navbar-brand" href="{% url 'hermes:index' %}">Hermes</a>
+      <a class="navbar-brand" href="{% url 'hermes:index' %}">Hermes Channel</a>
       <ul class="nav navbar-nav">
 	{% for board in board_list %}
 	<li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>

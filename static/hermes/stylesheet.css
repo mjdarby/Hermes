@@ -15,8 +15,9 @@ hr {
 }
 
 .reply {
+    display: inline-block;
     margin-top: 4px;
-    margin-bottom: 4px;
+    padding-right: 6px;
 }
 
 .childReply{
@@ -43,5 +44,14 @@ blockquote {
 .postInfo {
     margin-left: 4px;
     margin-top: 3px;
+    padding: 2px;
     margin-bottom: 3px;
+}
+
+.navbar {
+    border-color: #487F40;
+    background-color:#E0FFDA;
+    border: initial;
+    border-bottom: 1px solid;
+    border-radius: initial;
 }

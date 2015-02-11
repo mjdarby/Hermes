@@ -25,12 +25,12 @@
   </div>
 </div>
 <div class="row">
-  <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
+  <div class="col-md-12 col-xs-12">
     <hr/>
       {%if post_list %}
       {% for post in post_list %}
       <div class="row">
-	<div class="col-md-12 col-xs-10">
+	<div class="col-md-12 col-xs-12">
 	  <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
 	    <div class="postInfo">
 	      <span class="author">{{post.author}}</span>

@@ -1,9 +1,19 @@
-{%if board_list %}
+{% extends 'hermes/base.html' %}
+
+{% load bootstrap3 %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
+    {% if board_list %}
     <ul>
-    {% for board in board_list %}
-        <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
-    {% endfor %}
+      {% for board in board_list %}
+      <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
+      {% endfor %}
     </ul>
-{% else %}
+    {% else %}
     <p>What! You trying to mug me?!</p>
-{% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

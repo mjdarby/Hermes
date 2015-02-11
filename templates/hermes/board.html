@@ -12,25 +12,23 @@
     <form class="form-horizontal" action="{% url 'hermes:new' board.id %}" method="post">
       {% csrf_token %}
       {% bootstrap_form form layout='horizontal' %}
-      {% buttons submit='Post Thread' reset="Reset" layout='horizontal' %}
+      {% buttons submit='Post Thread' layout='horizontal' %}
       {% endbuttons %}
     </form>
   </div>
 </div>
 <div class="row">
   <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
-    {%if threads %}
-    <ul>
-      {% for thread in threads %}
-      <li>
-	<a href="{% url 'hermes:thread' board.id thread.id %}">{{thread.post.title}} -
-	  {{thread.post.author}}</a>
-	<ul>
-	  <li>{{thread.post.text}}</li>
-	</ul>
-      </li>
-      {% endfor %}
-    </ul>
+    {% if threads %}
+    {% for thread in threads %}
+    <div>
+      <div>
+	{% if thread.post.title %}{{thread.post.title}} - {% endif %}
+	  {{thread.post.author}} <a href="{% url 'hermes:thread' board.id thread.id %}">View Thread</a>
+      </div>
+      <div>{{thread.post.text}}</div>
+    </div>
+    {% endfor %}
     {% else %}
       <p>What! You trying to mug me?!</p>
     {% endif %}

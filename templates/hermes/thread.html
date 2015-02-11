@@ -1,22 +1,37 @@
-<form action="{% url 'hermes:reply' board_id thread_id %}" method="post">
-  {% csrf_token %}
-  author: <input type="text" name="author"/><br/>
-  email: <input type="text" name="email"/><br/>
-  subject: <input type="text" name="subject"/><br/>
-  TEXT: <input type="textfield" name="text"/><br/>
-  <input type="submit" value="post"/>
-</form>
+{% extends 'hermes/base.html' %}
 
-{%if post_list %}
-    <ul>
-    {% for post in post_list %}
-        <li>
+{% load bootstrap3 %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6 col-md-offset-3 col-xs-6 col-xs-offset-3">
+    {% if error_message %}
+    <div>{{error_message}}</div>
+    {% endif %}
+
+    <form class="form-horizontal" action="{% url 'hermes:reply' board_id thread_id %}" method="post">
+      {% csrf_token %}
+      {% bootstrap_form form layout='horizontal' %}
+      {% buttons submit='Post Reply' layout='horizontal' %}
+      {% endbuttons %}
+    </form>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
+    {%if post_list %}
+      {% for post in post_list %}
+      <div class="row">
+	<div class="col-md-12 col-xs-10">
 	  <span>{{post.author}}</span>
 	  <span>{{post.title}}</span>
 	  <div>{{post.text}}</div>
-	</li>
-    {% endfor %}
-    </ul>
-{% else %}
+	</div>
+      </div>
+      {% endfor %}
+    {% else %}
     <p>What! You trying to mug me?!</p>
-{% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

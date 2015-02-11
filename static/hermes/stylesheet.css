@@ -1,0 +1,7 @@
+/* Hermes Channel Stylesheet */
+
+/* Override ordinary display parameter for collapsable but visible elements
+   so they can be centered */
+.collapse.in {
+    display: inline;
+}

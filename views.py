@@ -6,6 +6,22 @@ from hermes.forms import BoardForm
 
 from datetime import datetime
 
+# Helpers
+def create_post(thread, author, title, email, text):
+    """Create but don't save a new Post object"""
+    if not text:
+        return False
+    new_post = Post()
+    new_post.thread = thread
+    new_post.author = author or "Anonymous"
+    new_post.title = title
+    new_post.email = email
+    new_post.text = text
+    new_post.time = datetime.now()
+    return new_post
+
+# Views
+
 def index(request):
     board_list = Board.objects.all().order_by('title')
     context = {'board_list': board_list}
@@ -46,18 +62,14 @@ def post(request, board_id):
     new_thread.board = aBoard
     new_thread.time = datetime.now()
     new_thread.save()
-    new_post = Post()
-    new_post.thread = new_thread
-    new_post.author = form['author'] or "Anonymous"
-    new_post.title = form['title']
-    new_post.email = form['email']
-    if not form['text']:
+    new_post = create_post(new_thread, form['author'], form['title'],
+                       form['email'], form['text'])
+    if not new_post:
         error_message = "Where's the damn text CJ?'"
         return board(request, board_id, error_message)
-    new_post.text = form['text']
-    new_post.time = datetime.now()
-    new_post.save()
-    return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+    else:
+        new_post.save()
+        return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
 
 def reply(request, board_id, thread_id):
     form = request.POST
@@ -65,18 +77,14 @@ def reply(request, board_id, thread_id):
         thread = Thread.objects.get(id=thread_id)
     except thread.DoesNotExist:
         raise Http404
-    new_post = Post()
-    new_post.thread = thread
-    new_post.author = form['author'] or "Anonymous"
-    new_post.title = form['title']
-    new_post.email = form['email']
-    if not form['text']:
+    new_post = create_post(thread, form['author'], form['title'],
+                       form['email'], form['text'])
+    if not new_post:
         error_message = "Where's the damn text CJ?'"
         return thread(request, board_id, error_message)
-    new_post.text = form['text']
-    new_post.time = datetime.now()
-    new_post.save()
-    return HttpResponseRedirect(reverse('hermes:thread', args=(board_id,thread_id)))
+    else:
+        new_post.save()
+        return HttpResponseRedirect(reverse('hermes:thread', args=(board_id,thread_id)))
 
 def thread(request, board_id, thread_id, error_message=""):
     try:

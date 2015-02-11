@@ -9,7 +9,10 @@
     <div>{{error_message}}</div>
     {% endif %}
     <div class="text-center">
-      <button class="collapse in postForm btn btn-primary" type="button" data-toggle="collapse" data-target=".postForm" aria-expanded="false" aria-controls="postForm">Post Reply</button>
+      <button class="collapse in postForm btn btn-primary"
+	      type="button"
+	      data-toggle="collapse"
+	      data-target=".postForm" aria-expanded="false" aria-controls="postForm">Post Reply</button>
     </div>
     <div class="postForm collapse">
       <form class="form-horizontal" action="{% url 'hermes:reply' board_id thread_id %}" method="post">
@@ -23,19 +26,29 @@
 </div>
 <div class="row">
   <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
-    {%if post_list %}
+    <hr/>
+      {%if post_list %}
       {% for post in post_list %}
       <div class="row">
 	<div class="col-md-12 col-xs-10">
-	  <span>{{post.author}}</span>
-	  <span>{{post.title}}</span>
-	  <div>{{post.text}}</div>
+	  <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
+	    <div class="postInfo">
+	      <span class="author">{{post.author}}</span>
+	      <span class="subject">{{post.title}}</span>
+	      <span class="timestamp">{{post.time}}</span>
+	      <span class="postId">No.{{post.id}}</span>
+	    </div>
+	    <blockquote class="post">
+	      {{post.text}}
+	    </blockquote>
+	  </div>
 	</div>
       </div>
       {% endfor %}
     {% else %}
     <p>What! You trying to mug me?!</p>
     {% endif %}
+    <hr/>
   </div>
 </div>
 {% endblock %}

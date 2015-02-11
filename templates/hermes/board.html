@@ -25,13 +25,27 @@
   <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
     {% if threads %}
     {% for thread in threads %}
-    <div>
-      <div>
-	{% if thread.post.title %}{{thread.post.title}} - {% endif %}
-	  {{thread.post.author}} <a href="{% url 'hermes:thread' board.id thread.id %}">View Thread</a>
+    <hr>
+      {% for post in thread.post_list %}
+      <div class="row">
+	<div class="col-md-12 col-xs-10">
+	  <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
+	    <div class="postInfo">
+	      <span class="author">{{post.author}}</span>
+	      <span class="subject">{{post.title}}</span>
+	      <span class="timestamp">{{post.time}}</span>
+	      <span class="postId">No.{{post.id}}</span>
+	      {% if forloop.first %}
+	      <span class="postLink">[<a href="{% url 'hermes:thread' board.id thread.id %}">View thread</a>]</span>
+	      {% endif %}
+	    </div>
+	    <blockquote class="post">
+	      {{post.text}}
+	    </blockquote>
+	  </div>
+	</div>
       </div>
-      <div>{{thread.post.text}}</div>
-    </div>
+      {% endfor %}
     {% endfor %}
     {% else %}
       <div>What! You trying to mug me?!</div>

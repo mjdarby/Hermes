@@ -5,3 +5,43 @@
 .collapse.in {
     display: inline;
 }
+
+.background {
+    background-color: #E0FFDA;
+}
+
+hr {
+    border-color: #487F40;
+}
+
+.reply {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.childReply{
+    background-color: #CAE5C4;
+}
+
+.author {
+    color: #B23252;
+    font-weight:bold;
+}
+
+.subject {
+    color: #3281B2;
+    font-weight:bold;
+}
+
+blockquote {
+    padding: 10px 20px;
+    margin: 0 0 20px;
+    font-size: inherit;
+    border-left: inherit;
+}
+
+.postInfo {
+    margin-left: 4px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}

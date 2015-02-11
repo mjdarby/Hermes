@@ -39,14 +39,15 @@ def board(request, board_id, error_message=""):
     threads = []
     for thread in thread_list:
         try:
+            post = Post.objects.filter(thread=thread.id).order_by('time').first()
             post_list = Post.objects.filter(thread=thread.id).order_by('time')
         except Post.DoesNotExist:
             continue
         if post_list.exists():
-            first_post = post_list[0]
-            thread_author = first_post.author
-            thread_view = { 'post': first_post,
-                           'id': thread.id }
+            first_post = post
+            last_posts = post_list[1:5]
+            thread_view = { 'post_list': [first_post] + list(last_posts),
+                            'id': thread.id }
             threads.append(thread_view)
     context = {'board': board, 'threads': threads,
                'form': BoardForm(), 'error_message': error_message}

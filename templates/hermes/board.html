@@ -9,7 +9,7 @@
     <div>{{error_message}}</div>
     {% endif %}
     <div class="text-center">
-      <button class="collapse in postForm btn btn-primary" type="button" data-toggle="collapse" data-target=".postForm" aria-expanded="false" aria-controls="postForm">Post Reply</button>
+      <button class="collapse in postForm btn btn-primary" type="button" data-toggle="collapse" data-target=".postForm" aria-expanded="false" aria-controls="postForm">Post Thread</button>
     </div>
     <div class="postForm collapse">
       <form class="form-horizontal" action="{% url 'hermes:new' board.id %}" method="post">

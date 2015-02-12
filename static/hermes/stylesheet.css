@@ -39,6 +39,7 @@ blockquote {
     margin: 0 0 20px;
     font-size: inherit;
     border-left: inherit;
+    margin-bottom: 5px;
 }
 
 .postInfo {
@@ -54,4 +55,15 @@ blockquote {
     border: initial;
     border-bottom: 1px solid;
     border-radius: initial;
+}
+
+.jumbotron {
+    background-color: #E0FFDA;
+    border-color: #487F40;
+    border: 1px solid;
+}
+
+.email {
+    color: inherit;
+    text-decoration:underline;
 }

@@ -4,16 +4,23 @@
 
 {% block content %}
 <div class="row">
-  <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
-    {% if board_list %}
-    <ul>
-      {% for board in board_list %}
-      <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>What! You trying to mug me?!</p>
-    {% endif %}
+  <div class="col-md-12 col-xs-12">
+    <div class="jumbotron">
+      <h2>Hermes Channel <small>Yet Another Text Board Clone</small></h2>
+      <p> Welcome to Hermes Channel, a text board that wouldn't look out of place in 1997</p>
+      <div class="board-list">
+	{% if board_list %}
+	<ul>
+	  {% for board in board_list %}
+	  <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
+	  {% endfor %}
+	</ul>
+	{% else %}
+	<p>What! You trying to mug me?!</p>
+	{% endif %}
+      </div>
+
+    </div>
   </div>
 </div>
 {% endblock %}

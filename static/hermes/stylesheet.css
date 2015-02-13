@@ -1,11 +1,5 @@
 /* Hermes Channel Stylesheet */
 
-/* Override ordinary display parameter for collapsable but visible elements
-   so they can be centered */
-.collapse.in {
-    display: inline;
-}
-
 .background {
     background-color: #E0FFDA;
 }
@@ -49,14 +43,6 @@ blockquote {
     margin-bottom: 3px;
 }
 
-.navbar {
-    border-color: #487F40;
-    background-color:#E0FFDA;
-    border: initial;
-    border-bottom: 1px solid;
-    border-radius: initial;
-}
-
 .jumbotron {
     background-color: #E0FFDA;
     border-color: #487F40;
@@ -70,4 +56,25 @@ blockquote {
 
 .threadRepliesOmitted {
     color: #999999;
+}
+
+/* Bootstrap overrides */
+
+.navbar {
+    border-color: #487F40;
+    background-color:#E0FFDA;
+    border: initial;
+    border-bottom: 1px solid;
+    border-radius: initial;
+}
+
+/* Override ordinary display parameter for collapsable but visible elements
+   so they can be centered */
+.collapse.in {
+    display: inline;
+}
+
+/* This highlights why we need SASS Bootstrap */
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
+    background-color: #CAE5C4;
 }

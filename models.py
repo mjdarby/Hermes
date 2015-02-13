@@ -8,7 +8,8 @@ class Board(models.Model):
 
 class Thread(models.Model):
     board = models.ForeignKey(Board)
-    time = models.DateTimeField()
+    time_posted = models.DateTimeField()
+    time_last_updated = models.DateTimeField()
 
     def __str__(self):
         return str(self.board) + str(self.time)

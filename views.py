@@ -33,20 +33,25 @@ def board(request, board_id, error_message=""):
     except Board.DoesNotExist:
         raise Http404
     try:
-        thread_list = Thread.objects.filter(board=board_id)
+        thread_list = Thread.objects.filter(board=board_id).order_by('time_last_updated').reverse()
     except Thread.DoesNotExist:
         thread_list = []
     threads = []
     for thread in thread_list:
         try:
             post = Post.objects.filter(thread=thread.id).order_by('time').first()
-            post_list = Post.objects.filter(thread=thread.id).order_by('time')
+            post_list = Post.objects.filter(thread=thread.id).order_by('time').reverse()[:5]
         except Post.DoesNotExist:
             continue
         if post_list.exists():
             first_post = post
-            last_posts = post_list[1:5]
-            thread_view = { 'post_list': [first_post] + list(last_posts),
+            last_posts = list(post_list)
+            last_posts.reverse()
+            try:
+                last_posts.remove(first_post)
+            except Exception as e:
+                pass
+            thread_view = { 'post_list': [first_post] + last_posts,
                             'id': thread.id }
             threads.append(thread_view)
     context = {'board': board, 'threads': threads,
@@ -61,7 +66,8 @@ def post(request, board_id):
         raise Http404
     new_thread = Thread()
     new_thread.board = aBoard
-    new_thread.time = datetime.now()
+    new_thread.time_posted = datetime.now()
+    new_thread.time_last_updated = datetime.now()
     new_thread.save()
     new_post = create_post(new_thread, form['author'], form['title'],
                        form['email'], form['text'])
@@ -78,6 +84,7 @@ def reply(request, board_id, thread_id):
         thread = Thread.objects.get(id=thread_id)
     except thread.DoesNotExist:
         raise Http404
+    thread.time_last_updated = datetime.now()
     new_post = create_post(thread, form['author'], form['title'],
                        form['email'], form['text'])
     if not new_post:
@@ -85,6 +92,7 @@ def reply(request, board_id, thread_id):
         return thread(request, board_id, error_message)
     else:
         new_post.save()
+        thread.save()
         return HttpResponseRedirect(reverse('hermes:thread', args=(board_id,thread_id)))
 
 def thread(request, board_id, thread_id, error_message=""):

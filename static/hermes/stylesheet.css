@@ -67,3 +67,7 @@ blockquote {
     color: inherit;
     text-decoration:underline;
 }
+
+.threadRepliesOmitted {
+    color: #999999;
+}

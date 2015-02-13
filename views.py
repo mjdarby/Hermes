@@ -1,4 +1,5 @@
-from django.shortcuts import render, HttpResponseRedirect, Http404
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 
 from hermes.models import Board, Thread, Post
@@ -20,6 +21,13 @@ def create_post(thread, author, title, email, text):
     new_post.time = datetime.now()
     return new_post
 
+def get_cleaned_board_form_data(htmlPostData):
+    form = BoardForm(htmlPostData)
+    if not form.is_valid():
+        raise Exception("Form data invalid")
+    else:
+        return form.cleaned_data
+
 # Views
 
 def index(request):
@@ -28,42 +36,50 @@ def index(request):
     return render(request, 'hermes/index.html', context)
 
 def board(request, board_id, error_message=""):
-    try:
-        board = Board.objects.get(id=board_id)
-    except Board.DoesNotExist:
-        raise Http404
-    try:
-        thread_list = Thread.objects.filter(board=board_id).order_by('time_last_updated').reverse()
-    except Thread.DoesNotExist:
+    board = get_object_or_404(Board, id=board_id)
+    thread_list = Thread.objects.filter(board=board_id).order_by('time_last_updated').reverse()
+    if not thread_list:
         thread_list = []
     threads = []
     for thread in thread_list:
-        try:
-            post = Post.objects.filter(thread=thread.id).order_by('time').first()
-            post_list = Post.objects.filter(thread=thread.id).order_by('time').reverse()[:5]
-        except Post.DoesNotExist:
+        first_post = Post.objects.filter(thread=thread.id).order_by('time').first()
+        if not first_post:
+            # Some weird busted thread, skip it
             continue
-        if post_list.exists():
-            first_post = post
+        post_list = Post.objects.filter(thread=thread.id).order_by('time').reverse()[:5]
+        post_count = Post.objects.filter(thread=thread.id).count()
+        last_posts = []
+        if post_list:
+            # Get the X latest replies to the thread, removing the OP if necc.
             last_posts = list(post_list)
             last_posts.reverse()
             try:
                 last_posts.remove(first_post)
             except Exception as e:
                 pass
-            thread_view = { 'post_list': [first_post] + last_posts,
-                            'id': thread.id }
-            threads.append(thread_view)
+
+        replies_omitted = post_count - len(last_posts) - 1
+        thread_view = { 'post_list': [first_post] + last_posts,
+                        'id': thread.id, 'replies_omitted': replies_omitted }
+        threads.append(thread_view)
     context = {'board': board, 'threads': threads,
                'form': BoardForm(), 'error_message': error_message}
     return render(request, 'hermes/board.html', context)
 
-def post(request, board_id):
-    form = request.POST
-    try:
-        aBoard = Board.objects.get(id=board_id)
-    except Board.DoesNotExist:
+def thread(request, board_id, thread_id, error_message=""):
+    post_list = Post.objects.filter(thread=thread_id).order_by('time')
+    if not post_list:
         raise Http404
+    context = {'post_list': post_list, 'form': BoardForm(),
+               'board_id': board_id, 'thread_id': thread_id}
+    return render(request, 'hermes/thread.html', context)
+
+def post(request, board_id):
+    try:
+        form = get_cleaned_board_form_data(request.POST)
+    except Exception as e:
+        raise Http404
+    aBoard = get_object_or_404(Board, id=board_id)
     new_thread = Thread()
     new_thread.board = aBoard
     new_thread.time_posted = datetime.now()
@@ -79,11 +95,11 @@ def post(request, board_id):
         return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
 
 def reply(request, board_id, thread_id):
-    form = request.POST
     try:
-        thread = Thread.objects.get(id=thread_id)
-    except thread.DoesNotExist:
+        form = get_cleaned_board_form_data(request.POST)
+    except Exception as e:
         raise Http404
+    thread = get_object_or_404(Thread, id=thread_id)
     thread.time_last_updated = datetime.now()
     new_post = create_post(thread, form['author'], form['title'],
                        form['email'], form['text'])
@@ -94,12 +110,3 @@ def reply(request, board_id, thread_id):
         new_post.save()
         thread.save()
         return HttpResponseRedirect(reverse('hermes:thread', args=(board_id,thread_id)))
-
-def thread(request, board_id, thread_id, error_message=""):
-    try:
-        post_list = Post.objects.filter(thread=thread_id).order_by('time')
-    except Post.DoesNotExist:
-        post_list = []
-    context = {'post_list': post_list, 'form': BoardForm(),
-               'board_id': board_id, 'thread_id': thread_id}
-    return render(request, 'hermes/thread.html', context)

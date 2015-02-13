@@ -33,13 +33,19 @@
 	<div class="col-md-12 col-xs-12">
 	  <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
 	    <div class="postInfo">
-	      <span class="author">{{post.author}}</span>
+	      <span class="author">
+		{% if post.email %}
+		<a class="email" href="mailto:{{post.email}}">
+		{% endif %}
+		{{post.author}}{% if post.email %}</a>
+		{% endif %}
+	      </span>
 	      <span class="subject">{{post.title}}</span>
 	      <span class="timestamp">{{post.time}}</span>
 	      <span class="postId">No.{{post.id}}</span>
 	    </div>
 	    <blockquote class="post">
-	      {{post.text}}
+	      {{post.text|linebreaksbr}}
 	    </blockquote>
 	  </div>
 	</div>

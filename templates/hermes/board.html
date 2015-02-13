@@ -46,7 +46,15 @@
 	      {% endif %}
 	    </div>
 	    <blockquote class="post">
-	      {{post.text}}
+	      {{post.text|linebreaksbr}}
+
+	      {% if forloop.first and thread.replies_omitted %}
+	      <br/><br/>
+	      <span class="threadRepliesOmitted">
+		{{thread.replies_omitted}}
+		replies omitted. Click
+		<a href="{% url 'hermes:thread' board.id thread.id %}">here</a> to view.</span>
+	      {% endif %}
 	    </blockquote>
 	  </div>
 	</div>

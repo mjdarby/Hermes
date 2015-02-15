@@ -6,10 +6,12 @@ from django.utils.html import escape
 from hermes.models import Board, Thread, Post
 from hermes.forms import BoardForm
 
+from ipware.ip import get_real_ip
+
 from datetime import datetime
 
 # Helpers
-def create_post(thread, author, title, email, text):
+def create_post(thread, author, title, email, ip, text):
     """Create but don't save a new Post object"""
     if not text:
         return False
@@ -19,6 +21,7 @@ def create_post(thread, author, title, email, text):
     new_post.title = title
     new_post.email = email
     new_post.text = text
+    new_post.ip = "None" if not ip else ip
     new_post.time = datetime.now()
     return new_post
 
@@ -102,7 +105,7 @@ def post(request, board_id):
     new_thread.time_posted = datetime.now()
     new_thread.save(True) # Always bump on first post
     new_post = create_post(new_thread, form['author'], form['title'],
-                       form['email'], form['text'])
+                       form['email'], get_real_ip(request), form['text'])
     save_email_and_author(request, form['email'], form['author'])
     noko = 'noko' in form['email'].lower()
     if not new_post:
@@ -122,7 +125,7 @@ def reply(request, board_id, thread_id):
         raise Http404
     thread = get_object_or_404(Thread, id=thread_id)
     new_post = create_post(thread, form['author'], form['title'],
-                       form['email'], form['text'])
+                       form['email'], get_real_ip(request), form['text'])
     bump = 'sage' not in form['email'].lower()
     noko = 'noko' in form['email'].lower()
     save_email_and_author(request, form['email'], form['author'])

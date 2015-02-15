@@ -29,7 +29,6 @@ def get_cleaned_board_form_data(htmlPostData):
         return form.cleaned_data
 
 # Views
-
 def index(request):
     board_list = Board.objects.all().order_by('title')
     context = {'board_list': board_list}

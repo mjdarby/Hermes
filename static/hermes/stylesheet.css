@@ -58,6 +58,10 @@ blockquote {
     color: #999999;
 }
 
+.quote {
+    color: #3281B2;
+}
+
 /* Bootstrap overrides */
 
 .navbar {

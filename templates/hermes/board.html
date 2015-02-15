@@ -1,6 +1,7 @@
 {% extends 'hermes/base.html' %}
 
 {% load bootstrap3 %}
+{% load hermes_extras %}
 
 {% block content %}
 <div class="row">
@@ -31,6 +32,7 @@
 	<div class="col-md-12 col-xs-12">
 	  <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
 	    <div class="postInfo">
+	      <span class="subject">{{post.title}}</span>
 	      <span class="author">
 		{% if post.email %}
 		<a class="email" href="mailto:{{post.email}}">
@@ -38,7 +40,6 @@
 		{{post.author}}{% if post.email %}</a>
 		{% endif %}
 	      </span>
-	      <span class="subject">{{post.title}}</span>
 	      <span class="timestamp">{{post.time}}</span>
 	      <span class="postId">No.{{post.id}}</span>
 	      {% if forloop.first %}
@@ -46,7 +47,7 @@
 	      {% endif %}
 	    </div>
 	    <blockquote class="post">
-	      {{post.text|linebreaksbr}}
+	      {{post.text|greentext|linebreaksbr}}
 
 	      {% if forloop.first and thread.replies_omitted %}
 	      <br/><br/>

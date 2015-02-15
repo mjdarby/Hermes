@@ -31,3 +31,9 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+class Ban(models.Model):
+    ip = models.CharField(max_length=45)
+
+    def __str__(self):
+        return self.ip

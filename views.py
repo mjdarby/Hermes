@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.utils.html import escape
 
-from hermes.models import Board, Thread, Post
+from hermes.models import Board, Thread, Post, Ban
 from hermes.forms import BoardForm
 
 from ipware.ip import get_real_ip
@@ -46,6 +46,9 @@ def create_new_board_form(request):
     if 'email' in request.session:
         initial_email = escape(request.session['email'])
     return BoardForm(initial={'email': initial_email, 'author': initial_author})
+
+def is_banned(request):
+    return Ban.objects.filter(ip=get_real_ip(request)).exists()
 
 # Views
 def index(request):
@@ -95,6 +98,8 @@ def thread(request, board_id, thread_id, error_message=""):
     return render(request, 'hermes/thread.html', context)
 
 def post(request, board_id):
+    if is_banned(request):
+        return banned(request)
     try:
         form = get_cleaned_board_form_data(request.POST)
     except Exception as e:
@@ -119,6 +124,8 @@ def post(request, board_id):
             return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
 
 def reply(request, board_id, thread_id):
+    if is_banned(request):
+        return banned(request)
     try:
         form = get_cleaned_board_form_data(request.POST)
     except Exception as e:
@@ -139,3 +146,6 @@ def reply(request, board_id, thread_id):
             return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, thread_id)))
         else:
             return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+
+def banned(request):
+    return render(request, 'hermes/banned.html')

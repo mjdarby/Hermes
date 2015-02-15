@@ -32,7 +32,8 @@ def get_cleaned_board_form_data(htmlPostData):
 def save_email_and_author(request, email, author):
     # For convenience, save the email and author fields in a cookie
     request.session['author'] = author
-    request.session['email'] = email
+    if email.lower() != 'sage' and email.lower() != 'noko':
+        request.session['email'] = email
 
 def create_new_board_form(request):
     initial_email = ""
@@ -103,12 +104,16 @@ def post(request, board_id):
     new_post = create_post(new_thread, form['author'], form['title'],
                        form['email'], form['text'])
     save_email_and_author(request, form['email'], form['author'])
+    noko = 'noko' in form['email'].lower()
     if not new_post:
         error_message = "Where's the damn text CJ?'"
         return board(request, board_id, error_message)
     else:
         new_post.save()
-        return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+        if noko:
+            return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, new_thread.id)))
+        else:
+            return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
 
 def reply(request, board_id, thread_id):
     try:
@@ -118,7 +123,8 @@ def reply(request, board_id, thread_id):
     thread = get_object_or_404(Thread, id=thread_id)
     new_post = create_post(thread, form['author'], form['title'],
                        form['email'], form['text'])
-    bump = 'sage' not in form['email']
+    bump = 'sage' not in form['email'].lower()
+    noko = 'noko' in form['email'].lower()
     save_email_and_author(request, form['email'], form['author'])
     if not new_post:
         error_message = "Where's the damn text CJ?'"
@@ -126,4 +132,7 @@ def reply(request, board_id, thread_id):
     else:
         new_post.save()
         thread.save(bump)
-        return HttpResponseRedirect(reverse('hermes:thread', args=(board_id,thread_id)))
+        if noko:
+            return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, thread_id)))
+        else:
+            return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))

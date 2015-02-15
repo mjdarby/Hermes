@@ -47,7 +47,14 @@
 	      {% endif %}
 	    </div>
 	    <blockquote class="post">
+	      {% if post.text|will_cut_long_comment %}
+	      {{post.text|cut_long_comment|greentext|linebreaksbr}}
+	      <br/><br/>
+	      <span class="threadRepliesOmitted">  Comment too long. Click
+		<a href="{% url 'hermes:thread' board.id thread.id %}">here</a> to view.</span>
+	      {% else %}
 	      {{post.text|greentext|linebreaksbr}}
+	      {% endif %}
 
 	      {% if forloop.first and thread.replies_omitted %}
 	      <br/><br/>

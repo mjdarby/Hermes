@@ -12,6 +12,8 @@ hr {
     display: inline-block;
     margin-top: 4px;
     padding-right: 6px;
+    max-width: 100%;
+    word-wrap: break-word;
 }
 
 .childReply{

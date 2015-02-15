@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 class Board(models.Model):
     title = models.CharField(max_length=50)
@@ -10,6 +11,11 @@ class Thread(models.Model):
     board = models.ForeignKey(Board)
     time_posted = models.DateTimeField()
     time_last_updated = models.DateTimeField()
+
+    def save(self, bumped, *args, **kwargs):
+        if bumped:
+            self.time_last_updated = datetime.now()
+        super(Thread, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.board) + str(self.time)

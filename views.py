@@ -99,8 +99,7 @@ def post(request, board_id):
     new_thread = Thread()
     new_thread.board = aBoard
     new_thread.time_posted = datetime.now()
-    new_thread.time_last_updated = datetime.now()
-    new_thread.save()
+    new_thread.save(True) # Always bump on first post
     new_post = create_post(new_thread, form['author'], form['title'],
                        form['email'], form['text'])
     save_email_and_author(request, form['email'], form['author'])
@@ -117,14 +116,14 @@ def reply(request, board_id, thread_id):
     except Exception as e:
         raise Http404
     thread = get_object_or_404(Thread, id=thread_id)
-    thread.time_last_updated = datetime.now()
     new_post = create_post(thread, form['author'], form['title'],
                        form['email'], form['text'])
+    bump = 'sage' not in form['email']
     save_email_and_author(request, form['email'], form['author'])
     if not new_post:
         error_message = "Where's the damn text CJ?'"
         return thread(request, board_id, error_message)
     else:
         new_post.save()
-        thread.save()
+        thread.save(bump)
         return HttpResponseRedirect(reverse('hermes:thread', args=(board_id,thread_id)))

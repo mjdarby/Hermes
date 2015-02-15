@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
+from django.utils.html import escape
 
 from hermes.models import Board, Thread, Post
 from hermes.forms import BoardForm
@@ -28,6 +29,20 @@ def get_cleaned_board_form_data(htmlPostData):
     else:
         return form.cleaned_data
 
+def save_email_and_author(request, email, author):
+    # For convenience, save the email and author fields in a cookie
+    request.session['author'] = author
+    request.session['email'] = email
+
+def create_new_board_form(request):
+    initial_email = ""
+    initial_author = ""
+    if 'author' in request.session:
+        initial_author = escape(request.session['author'])
+    if 'email' in request.session:
+        initial_email = escape(request.session['email'])
+    return BoardForm(initial={'email': initial_email, 'author': initial_author})
+
 # Views
 def index(request):
     board_list = Board.objects.all().order_by('title')
@@ -40,6 +55,7 @@ def board(request, board_id, error_message=""):
     if not thread_list:
         thread_list = []
     threads = []
+    new_board_form = create_new_board_form(request)
     for thread in thread_list:
         first_post = Post.objects.filter(thread=thread.id).order_by('time').first()
         if not first_post:
@@ -62,14 +78,15 @@ def board(request, board_id, error_message=""):
                         'id': thread.id, 'replies_omitted': replies_omitted }
         threads.append(thread_view)
     context = {'board': board, 'threads': threads,
-               'form': BoardForm(), 'error_message': error_message}
+               'form': new_board_form, 'error_message': error_message}
     return render(request, 'hermes/board.html', context)
 
 def thread(request, board_id, thread_id, error_message=""):
     post_list = Post.objects.filter(thread=thread_id).order_by('time')
+    new_board_form = create_new_board_form(request)
     if not post_list:
         raise Http404
-    context = {'post_list': post_list, 'form': BoardForm(),
+    context = {'post_list': post_list, 'form': new_board_form,
                'board_id': board_id, 'thread_id': thread_id}
     return render(request, 'hermes/thread.html', context)
 
@@ -86,6 +103,7 @@ def post(request, board_id):
     new_thread.save()
     new_post = create_post(new_thread, form['author'], form['title'],
                        form['email'], form['text'])
+    save_email_and_author(request, form['email'], form['author'])
     if not new_post:
         error_message = "Where's the damn text CJ?'"
         return board(request, board_id, error_message)
@@ -102,6 +120,7 @@ def reply(request, board_id, thread_id):
     thread.time_last_updated = datetime.now()
     new_post = create_post(thread, form['author'], form['title'],
                        form['email'], form['text'])
+    save_email_and_author(request, form['email'], form['author'])
     if not new_post:
         error_message = "Where's the damn text CJ?'"
         return thread(request, board_id, error_message)

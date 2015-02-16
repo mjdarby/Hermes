@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.utils.html import escape
+from django.contrib import messages
 
 from hermes.models import Board, Thread, Post, Ban
 from hermes.forms import BoardForm
@@ -48,7 +49,9 @@ def create_new_board_form(request):
     return BoardForm(initial={'email': initial_email, 'author': initial_author})
 
 def is_banned(request):
-    return Ban.objects.filter(ip=get_real_ip(request)).exists()
+    """Check if a user is banned or not"""
+    # Also catch the 'None' case for when we're testing by using str()
+    return Ban.objects.filter(ip=str(get_real_ip(request))).exists()
 
 # Views
 def index(request):
@@ -56,7 +59,7 @@ def index(request):
     context = {'board_list': board_list}
     return render(request, 'hermes/index.html', context)
 
-def board(request, board_id, error_message=""):
+def board(request, board_id):
     board = get_object_or_404(Board, id=board_id)
     thread_list = Thread.objects.filter(board=board_id).order_by('time_last_updated').reverse()
     if not thread_list:
@@ -85,10 +88,10 @@ def board(request, board_id, error_message=""):
                         'id': thread.id, 'replies_omitted': replies_omitted }
         threads.append(thread_view)
     context = {'board': board, 'threads': threads,
-               'form': new_board_form, 'error_message': error_message}
+               'form': new_board_form}
     return render(request, 'hermes/board.html', context)
 
-def thread(request, board_id, thread_id, error_message=""):
+def thread(request, board_id, thread_id):
     post_list = Post.objects.filter(thread=thread_id).order_by('time')
     new_board_form = create_new_board_form(request)
     if not post_list:
@@ -115,7 +118,8 @@ def post(request, board_id):
     noko = 'noko' in form['email'].lower()
     if not new_post:
         error_message = "Where's the damn text CJ?'"
-        return board(request, board_id, error_message)
+        messages.add_message(request, message.ERROR, error_message)
+        return board(request, board_id)
     else:
         new_post.save()
         if noko:
@@ -138,7 +142,8 @@ def reply(request, board_id, thread_id):
     save_email_and_author(request, form['email'], form['author'])
     if not new_post:
         error_message = "Where's the damn text CJ?'"
-        return thread(request, board_id, error_message)
+        messages.add_message(request, message.ERROR, error_message)
+        return thread(request, board_id)
     else:
         new_post.save()
         thread.save(bump)
@@ -149,3 +154,32 @@ def reply(request, board_id, thread_id):
 
 def banned(request):
     return render(request, 'hermes/banned.html')
+
+def ban(request, board_id, post_id):
+    if not request.user.is_authenticated():
+        raise Http404
+    post = get_object_or_404(Post, pk=post_id)
+    ban_ip = post.ip
+    new_ban = Ban()
+    new_ban.ip = ban_ip
+    new_ban.save()
+    messages.add_message(request, messages.INFO, "{} banned.".format(ban_ip))
+    return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+
+def delete(request, board_id, post_id):
+    """Allows a user or admin to delete a post, or a whole thread if
+    the first post is deleted."""
+    post = get_object_or_404(Post, pk=post_id)
+    thread = get_object_or_404(Thread, pk=post.thread.id)
+    user_ip = str(get_real_ip(request))
+    if not (request.user.is_authenticated() or post.ip == user_ip):
+        raise Http404
+    first_in_thread = Post.objects.filter(thread=thread.id).order_by('time').first()
+    delete_thread = post == first_in_thread
+    if delete_thread:
+        Post.objects.filter(thread=thread.id).delete()
+        thread.delete()
+    else:
+        post.delete()
+    messages.add_message(request, messages.INFO, 'Post deleted.')
+    return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))

@@ -22,13 +22,15 @@
     <div class="navbar-header">
       <a class="navbar-brand" href="{% url 'hermes:index' %}">Hermes Channel</a>
     </div>
-      <ul class="nav navbar-nav">
-	{% for board in board_list %}
-	<li><p class="navbar-text">|</p></li>
-	<li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
-	{% endfor %}
-      </ul>
-
+    <ul class="nav navbar-nav">
+      {% for board in board_list %}
+      <li><p class="navbar-text">|</p></li>
+      <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
+      {% endfor %}
+      {% if authenticated %}
+      <li><p class="navbar-text">Authenticated</p></li>
+      {% endif %}
+    </ul>
   </div>
 </nav>
 <nav class="navbar navbar-default visible-xs-block">

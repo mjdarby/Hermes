@@ -64,6 +64,11 @@ blockquote {
     color: #3281B2;
 }
 
+.message {
+    color: #B23252;
+    font-weight:bold;
+}
+
 /* Bootstrap overrides */
 
 .navbar {

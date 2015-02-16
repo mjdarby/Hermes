@@ -46,6 +46,17 @@
 	      </span>
 	      <span class="timestamp">{{post.time}}</span>
 	      <span class="postId">No.{{post.id}}</span>
+	      <span class="author">
+		{% if authenticated %}
+		{{post.ip}}
+		{% endif %}
+	      </span>
+	      {% if authenticated or user_ip == post.ip %}
+              <span class="postLink">[<a href="{% url 'hermes:delete' board_id post.id %}">Delete</a>]</span>
+	      {% endif %}
+              {% if authenticated %}
+              <span class="postLink">[<a href="{% url 'hermes:ban' board_id post.id %}">Ban</a>]</span>
+              {% endif %}
 	    </div>
 	    <blockquote class="post">
 	      {{post.text|greentext|linebreaksbr}}

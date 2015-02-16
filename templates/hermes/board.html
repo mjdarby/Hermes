@@ -12,14 +12,19 @@
     {% endfor %}
     {% endif %}
     <div class="text-center">
-      <button class="collapse in postForm btn btn-primary" type="button" data-toggle="collapse" data-target=".postForm" aria-expanded="false" aria-controls="postForm">Post Thread</button>
+      <button class="collapse in postForm btn btn-primary"
+              type="button"
+              data-toggle="collapse"
+              data-target=".postForm"
+              aria-expanded="false"
+              aria-controls="postForm">Post Thread</button>
     </div>
     <div class="postForm collapse">
       <form class="form-horizontal" action="{% url 'hermes:new' board.id %}" method="post">
-	{% csrf_token %}
-	{% bootstrap_form form layout='horizontal' %}
-	{% buttons submit='Post Thread' layout='horizontal' %}
-	{% endbuttons %}
+        {% csrf_token %}
+        {% bootstrap_form form layout='horizontal' %}
+        {% buttons submit='Post Thread' layout='horizontal' %}
+        {% endbuttons %}
       </form>
     </div>
   </div>
@@ -31,59 +36,59 @@
     <hr>
       {% for post in thread.post_list %}
       <div class="row">
-	<div class="col-md-12 col-xs-12">
-	  <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
-	    <div class="postInfo">
-	      <span class="subject">{{post.title}}</span>
-	      <span class="author">
-		{% if post.email %}
-		<a class="email" href="mailto:{{post.email}}">
-		{% endif %}
-		{{post.author}}{% if post.email %}</a>
-		{% endif %}
-	      </span>
-	      <span class="timestamp">{{post.time}}</span>
-	      <span class="postId">No.{{post.id}}</span>
-	      <span class="author">
-		{% if authenticated %}
-		{{post.ip}}
-		{% endif %}
-	      </span>
+        <div class="col-md-12 col-xs-12">
+          <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
+            <div class="postInfo">
+              <span class="subject">{{post.title}}</span>
+              <span class="author">
+                {% if post.email %}
+                <a class="email" href="mailto:{{post.email}}">
+                {% endif %}
+                {{post.author}}{% if post.email %}</a>
+                {% endif %}
+              </span>
+              <span class="timestamp">{{post.time}}</span>
+              <span class="postId">No.{{post.id}}</span>
+              <span class="author">
+                {% if hermes_authenticated %}
+                {{post.ip}}
+                {% endif %}
+              </span>
               {% if forloop.first %}
               <span class="postLink">[<a href="{% url 'hermes:thread' board.id thread.id %}">View thread</a>]</span>
               {% endif %}
-	      {% if authenticated or user_ip == post.ip %}
+              {% if hermes_authenticated or hermes_user_ip == post.ip %}
               <span class="postLink">[<a href="{% url 'hermes:delete' board.id post.id %}">Delete</a>]</span>
-	      {% endif %}
-              {% if authenticated %}
+              {% endif %}
+              {% if hermes_authenticated %}
               <span class="postLink">[<a href="{% url 'hermes:ban' board.id post.id %}">Ban</a>]</span>
               {% endif %}
             </div>
-	    <blockquote class="post">
-	      {% if post.text|will_cut_long_comment %}
-	      {{post.text|cut_long_comment|greentext|linebreaksbr}}
-	      <br/><br/>
-	      <span class="threadRepliesOmitted">  Comment too long. Click
-		<a href="{% url 'hermes:thread' board.id thread.id %}">here</a> to view.</span>
-	      {% else %}
-	      {{post.text|greentext|linebreaksbr}}
-	      {% endif %}
+            <blockquote class="post">
+              {% if post.text|will_cut_long_comment %}
+              {{post.text|cut_long_comment|greentext|linebreaksbr}}
+              <br/><br/>
+              <span class="threadRepliesOmitted">  Comment too long. Click
+                <a href="{% url 'hermes:thread' board.id thread.id %}">here</a> to view.</span>
+              {% else %}
+              {{post.text|greentext|linebreaksbr}}
+              {% endif %}
 
-	      {% if forloop.first and thread.replies_omitted %}
-	      <br/><br/>
-	      <span class="threadRepliesOmitted">
-		{{thread.replies_omitted}}
-		replies omitted. Click
-		<a href="{% url 'hermes:thread' board.id thread.id %}">here</a> to view.</span>
-	      {% endif %}
-	    </blockquote>
-	  </div>
-	</div>
+              {% if forloop.first and thread.replies_omitted %}
+              <br/><br/>
+              <span class="threadRepliesOmitted">
+                {{thread.replies_omitted}}
+                replies omitted. Click
+                <a href="{% url 'hermes:thread' board.id thread.id %}">here</a> to view.</span>
+              {% endif %}
+            </blockquote>
+          </div>
+        </div>
       </div>
       {% endfor %}
     {% endfor %}
     {% else %}
-      <div>What! You trying to mug me?!</div>
+      <div>No threads?! Why not create one?</div>
     {% endif %}
   </div>
 </div>

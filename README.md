@@ -1,13 +1,28 @@
 # Hermes
-Hermes is a Django application that provides simple text board functionality à la 2ch
+Hermes is a Django application that provides simple textboard functionality à la 2ch
 
-## A text board?
+## A textboard?
 Think 4chan without the pictures.
 
 ## Why?
 The internet was down and I was watching a lot of Densha Otoko.
 
-# Usage
+# Features
+Hermes is a fully functional textboard, providing such amazing features as:
+* Support for multiple boards!
+* Posting threads in said boards!
+* Posting replies in said threads!
+* Ordering of threads by latest post!
+* Configurable maximum number of threads + posts!
+* SAGE and NOKO!
+* Deletion of posts from your own IP!
+* Banning of posters by superusers!
+* Greentext that is actually blue!
+* A 'customisable' stylesheet, so your board doesn't have to look like a 4chan ripoff!
+* Mobile-friendly!
+* NO IMAGES. TEXT ONLY.
+
+# Installation
 Hermes is a Django application, but not a project in itself. To use Hermes, you will need to install Django normally
 and include some pre-requisites. The relevant parts of the parent project's requirements.txt are as follows:
 
@@ -15,14 +30,16 @@ and include some pre-requisites. The relevant parts of the parent project's requ
     django-bootstrap3==5.1.1
     django-ipware==0.1.0
 
-Make sure you include 'hermes' and 'bootstrap3' in your settings.py's INSTALLED_APPS list. You'll need to set up the urls.py
-too, but it should be no different from adding any other application to your project.
+Drop this directory into your new project and make sure you include 'hermes' and 'bootstrap3' in your settings.py's
+INSTALLED_APPS list. Add the following (or something like it) to your project's urls.py:
+
+    url(r'hermes/', include('hermes.urls', namespace='hermes')),
 
 You also need to include
 
     hermes.context_processors.hermes_context_processor
 
-in your list of context processors.
+in your list of context processors in settings.py. The rest of your Django project can be configured as normal.
 
 ## django-bootstrap3
 This project uses django-bootstrap3 to streamline development. It's pretty cool, you should check it out!
@@ -41,10 +58,42 @@ to do its job well.
 Hermes uses the standard Django model stuff, so it will happily attempt to use the database you specify in the project proper.
 The demo happily uses a Postgres backend.
 
-# Work in Progress
-Hermes is a functionally simple application, so the remaining work includes stuff like:
-* Making it look good (this is the hard part)
-* Making 'user management' (read: IP bans, post deleting) simpler
+# Configuration
+Hermes isn't the most configurable textboard you'll find, but it's pretty easy to change the basic look and feel by modifying
+stylesheet.css. There are also options for the following:
+
+    MAX_POSTS - Maximum posts per thread. Once this value is reached, users will not be able to add new replies to a thread.
+                If set to a False-evaluating value, there will be no maximum number posts.
+
+    POSTS_BEFORE_AUTOSAGE - If the number of posts in a thread exceeds this value, further posts to the thread will not
+                            bump the thread. Deleting posts until the count goes under this threshold will allow another
+                            bump, which is a bug to fix. Disabled if set to a False-evaluating value.
+    MAX_THREADS - If the number of threads surpasses this value, the oldest thread will be pruned from the database. Disabled
+                  if set to a False-evaluating value.
+
+
+# Admin usage
+Hermes does not have a dedicated administration page, instead getting authentication information from the
+Django contrib.auth module. If you are authenticated as a superuser in the admin interface, you will be logged into Hermes
+as an administrator.
+
+While logged in as a superuser, you will be able to ban IPs and delete posts. Posters may also delete their own posts if
+they have the same IP as when they first made the post. Deleting the first post in a thread will delete the thread.
+
+# Wishlist
+Hermes is now functionally complete, but has several more features that I'd like to implement.
+* Modify urls to use actual board names instead of ids
+* Posts should have per board numbering (currently global)
+* Post linking (>>2423 for instance)
+* Tripcodes
+* reCAPTCHA support
+* Dedicated admin interface, rather than piggybacking off Django's default admin
+* Better interface (Stats in each thread, disable posting at MAX_POSTS, etc)
+* Pagination of threads in boards
+* Fix autosaging so you can't abuse the current logic to keep a thread bumped.
+
+# Testing
+Ahaha. Ahahaha! AHAHAHA! Test suite to come.
 
 # Demo
 See Hermes in action here:

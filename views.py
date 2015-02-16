@@ -198,7 +198,7 @@ def banned(request):
     return render(request, 'hermes/banned.html')
 
 def ban(request, board_id, post_id):
-    if not request.user.is_superuser():
+    if not request.user.is_superuser:
         raise Http404
     post = get_object_or_404(Post, pk=post_id)
     ban_ip = post.ip
@@ -214,7 +214,7 @@ def delete(request, board_id, post_id):
     post = get_object_or_404(Post, pk=post_id)
     thread = get_object_or_404(Thread, pk=post.thread.id)
     user_ip = str(get_real_ip(request))
-    if not (request.user.is_superuser() or post.ip == user_ip):
+    if not (request.user.is_superuser or post.ip == user_ip):
         raise Http404
     first_in_thread = Post.objects.filter(thread=thread.id).order_by('time').first()
     delete_thread = post == first_in_thread

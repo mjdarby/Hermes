@@ -9,9 +9,9 @@
       <h2>Hermes Channel <small>Yet Another Textboard Clone</small></h2>
       <p> Welcome to Hermes Channel, a textboard that wouldn't look out of place in 1997</p>
       <div class="board-list">
-	{% if board_list %}
+	{% if hermes_board_list %}
 	<ul>
-	  {% for board in board_list %}
+	  {% for board in hermes_board_list %}
 	  <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
 	  {% endfor %}
 	</ul>

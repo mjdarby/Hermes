@@ -17,7 +17,7 @@
 </head>
 
 <body class="background">
-<nav class="navbar navbar-default hidden-xs">
+<nav class="navbar navbar-default hermes-navbar hidden-xs">
   <div class="container-fluid">
     <div class="navbar-header">
       <a class="navbar-brand" href="{% url 'hermes:index' %}">Hermes Channel</a>
@@ -33,7 +33,7 @@
     </ul>
   </div>
 </nav>
-<nav class="navbar navbar-default visible-xs-block">
+<nav class="navbar navbar-default hermes-navbar visible-xs-block">
   <div class="container-fluid">
     <div class="navbar-header">
       <a class="navbar-brand" href="{% url 'hermes:index' %}">Hermes Channel</a>
@@ -53,8 +53,9 @@
 <div class="container-fluid">
   {% block title %}{% endblock %}
   {% block content %}{% endblock %}
+  <hr/>
 </div>
-
+{% include 'hermes/footer.html' %}
 {% bootstrap_javascript jquery=1 %}
 </body>
 </html>

@@ -69,15 +69,23 @@ blockquote {
     font-weight:bold;
 }
 
-/* Bootstrap overrides */
-
-.navbar {
+/* Bootstrap replacements */
+.hermes-navbar {
     border-color: #487F40;
     background-color:#E0FFDA;
     border: initial;
     border-bottom: 1px solid;
     border-radius: initial;
 }
+
+.hermes-footer {
+    border-color: #487F40;
+    background-color:#E0FFDA;
+    border: initial;
+    border-radius: initial;
+}
+
+/* Bootstrap overrides */
 
 /* Override ordinary display parameter for collapsable but visible elements
    so they can be centered */

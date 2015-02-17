@@ -49,11 +49,11 @@
               </span>
               <span class="timestamp">{{post.time}}</span>
               <span class="postId">No.{{post.id}}</span>
+              {% if hermes_authenticated %}
               <span class="author">
-                {% if hermes_authenticated %}
                 {{post.ip}}
-                {% endif %}
               </span>
+              {% endif %}
               {% if forloop.first %}
               <span class="postLink">[<a href="{% url 'hermes:thread' board.id thread.id %}">View thread</a>]</span>
               {% endif %}

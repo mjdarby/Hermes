@@ -61,9 +61,11 @@ def delete_thread(thread_id):
 
 # Views
 def index(request):
-    board_list = Board.objects.all().order_by('title')
-    context = {'board_list': board_list}
-    return render(request, 'hermes/index.html', context)
+    return render(request, 'hermes/index.html')
+
+def static(request, static_html):
+    return render(request, 'hermes/' + static_html + '.html')
+
 
 def board(request, board_id):
     board = get_object_or_404(Board, id=board_id)

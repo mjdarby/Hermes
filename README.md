@@ -62,15 +62,28 @@ The demo happily uses a Postgres backend.
 Hermes isn't the most configurable textboard you'll find, but it's pretty easy to change the basic look and feel by modifying
 stylesheet.css. There are also options for the following:
 
-    MAX_POSTS - Maximum posts per thread. Once this value is reached, users will not be able to add new replies to a thread.
-                If set to a False-evaluating value, there will be no maximum number posts.
+    max_posts
 
-    POSTS_BEFORE_AUTOSAGE - If the number of posts in a thread exceeds this value, further posts to the thread will not
-                            bump the thread. Deleting posts until the count goes under this threshold will allow another
-                            bump, which is a bug to fix. Disabled if set to a False-evaluating value.
-    MAX_THREADS - If the number of threads surpasses this value, the oldest thread will be pruned from the database. Disabled
-                  if set to a False-evaluating value.
+Maximum posts per thread. Once this value is reached, users will not be able to add new replies to a thread.
+If set to a False-evaluating value, there will be no maximum number posts.
 
+    posts_before_autosage
+
+If the number of posts in a thread exceeds this value, further posts to the thread will not
+bump the thread. Deleting posts until the count goes under this threshold will allow another
+bump, which is a bug to fix. Disabled if set to a False-evaluating value.
+
+    max_threads
+
+If the number of threads surpasses this value, the oldest thread will be pruned from the database. Disabled
+if set to a False-evaluating value.
+
+Configuration is heavily 'inspired' by django-bootstrap3 and can be set in your project's settings.py like this:
+
+    HERMES = {}
+    HERMES['max_posts'] = 100
+    HERMES['max_threads'] = 50
+    HERMES['posts_before_autosage'] = 100
 
 # Admin usage
 Hermes does not have a dedicated administration page, instead getting authentication information from the

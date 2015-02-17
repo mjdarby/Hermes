@@ -6,22 +6,11 @@ from django.contrib import messages
 
 from hermes.models import Board, Thread, Post, Ban
 from hermes.forms import BoardForm
+from hermes.settings import get_hermes_setting
 
 from ipware.ip import get_real_ip
 
 from datetime import datetime
-
-# Settings (we'll move this into another file one day)
-# Threads can only have MAX_POSTS posts. If 0, unlimited posts
-MAX_POSTS = 100
-
-# If a thread hits POSTS_BEFORE_AUTOSAGE posts, the thread will not be bumped
-# after a post
-POSTS_BEFORE_AUTOSAGE = 100
-
-# If a new thread is created when MAX_THREADS exist, the oldest thread will
-# be deleted
-MAX_THREADS = 50
 
 # Helpers
 def create_post(thread, author, title, email, ip, text):
@@ -139,11 +128,14 @@ def post(request, board_id):
         messages.add_message(request, messages.ERROR, error_message)
         return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
     else:
-        # If we hit MAX_THREADS, delete the oldest one
+        # If we hit or pass MAX_THREADS, delete the oldest ones
         all_threads = Thread.objects.filter(board=board_id).order_by('-time_last_updated')
-        if (MAX_THREADS and len(all_threads) > MAX_THREADS):
-            oldest_thread = all_threads.last()
-            delete_thread(oldest_thread.id)
+        max_threads = get_hermes_setting('max_threads')
+        if (max_threads and len(all_threads) > max_threads):
+            thread_count_to_delete = len(all_threads) - max_threads
+            oldest_threads = all_threads.reverse()[:thread_count_to_delete]
+            for old_thread in oldest_threads:
+                delete_thread(old_thread.id)
 
         # Create the new post
         new_post.save()
@@ -160,7 +152,8 @@ def reply(request, board_id, thread_id):
 
     # No posting over max number of posts!
     all_posts = Post.objects.filter(thread=thread_id)
-    if MAX_POSTS and all_posts.count() >= MAX_POSTS:
+    max_posts = get_hermes_setting('max_posts')
+    if max_posts and all_posts.count() >= max_posts:
         error_message = "Maximum number of replies reached, start a new thread!"
         messages.add_message(request, messages.ERROR, error_message)
         return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, thread_id)))
@@ -175,7 +168,8 @@ def reply(request, board_id, thread_id):
                        form['email'], get_real_ip(request), form['text'])
 
     # Bump logic and sage
-    autosage = POSTS_BEFORE_AUTOSAGE and all_posts.count() > POSTS_BEFORE_AUTOSAGE
+    posts_before_autosage = get_hermes_setting('posts_before_autosage')
+    autosage = posts_before_autosage and all_posts.count() >= posts_before_autosage
     bump = 'sage' not in form['email'].lower() and not autosage
 
     # Stay in thread if noko in email field

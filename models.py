@@ -27,6 +27,7 @@ class Post(models.Model):
     title = models.CharField(max_length=30)
     text = models.CharField(max_length=1000)
     time = models.DateTimeField()
+    admin_post = models.BooleanField(default=False)
     ip = models.CharField(max_length=45, null=True)
 
     def __str__(self):

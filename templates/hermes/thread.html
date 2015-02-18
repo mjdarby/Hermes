@@ -61,7 +61,7 @@
               {% endif %}
             </div>
             <blockquote class="post">
-              {{post.text|greentext|linebreaksbr}}
+              {{post.text|hermes_common_filter:post|linebreaksbr}}
             </blockquote>
           </div>
         </div>

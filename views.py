@@ -13,7 +13,7 @@ from ipware.ip import get_real_ip
 from datetime import datetime
 
 # Helpers
-def create_post(thread, author, title, email, ip, text):
+def create_post(thread, author, title, email, ip, superuser, text):
     """Create but don't save a new Post object"""
     if not text:
         return False
@@ -24,6 +24,7 @@ def create_post(thread, author, title, email, ip, text):
     new_post.email = email
     new_post.text = text
     new_post.ip = "None" if not ip else ip
+    new_post.admin_post = superuser
     new_post.time = datetime.now()
     return new_post
 
@@ -120,8 +121,9 @@ def post(request, board_id):
     new_thread.board = the_board
     new_thread.time_posted = datetime.now()
     new_thread.save(True) # Always bump on first post
+    superuser = request.user.is_superuser
     new_post = create_post(new_thread, form['author'], form['title'],
-                       form['email'], get_real_ip(request), form['text'])
+                       form['email'], get_real_ip(request), superuser, form['text'])
     save_email_and_author(request, form['email'], form['author'])
     noko = 'noko' in form['email'].lower()
     if not new_post:
@@ -166,8 +168,9 @@ def reply(request, board_id, thread_id):
     except Exception as e:
         raise Http404
     the_thread = get_object_or_404(Thread, id=thread_id)
+    superuser = request.user.is_superuser
     new_post = create_post(the_thread, form['author'], form['title'],
-                       form['email'], get_real_ip(request), form['text'])
+                       form['email'], get_real_ip(request), superuser, form['text'])
 
     # Bump logic and sage
     posts_before_autosage = get_hermes_setting('posts_before_autosage')

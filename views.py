@@ -13,6 +13,10 @@ from ipware.ip import get_real_ip
 from datetime import datetime
 
 # Helpers
+def tripcode(post):
+    """Returns the tripcode for an author block"""
+    return post
+
 def create_post(thread, author, title, email, ip, superuser, text):
     """Create but don't save a new Post object"""
     if not text:

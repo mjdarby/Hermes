@@ -14,7 +14,7 @@ from datetime import datetime
 from crypt import crypt
 import re
 
-translation_table = "".maketrans(":;<=>?@[\]^_`", "ABCDEFGabcdef")
+translation_table = str.maketrans(":;<=>?@[\]^_`", "ABCDEFGabcdef")
 
 # Helpers
 def generate_tripcode(author_field):

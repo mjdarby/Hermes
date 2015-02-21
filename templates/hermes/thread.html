@@ -46,6 +46,9 @@
                 {{post.author}}{% if post.email %}</a>
                 {% endif %}
               </span>
+              {% if post.tripcode %}
+              <span class="tripcode">#{{post.tripcode}}</span>
+              {% endif %}
               <span class="timestamp">{{post.time}}</span>
               <span class="postId">No.{{post.id}}</span>
               {% if hermes_authenticated %}

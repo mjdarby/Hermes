@@ -25,6 +25,10 @@ hr {
     font-weight:bold;
 }
 
+.tripcode {
+    color: #B23252;
+}
+
 .subject {
     color: #3281B2;
     font-weight:bold;

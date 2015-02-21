@@ -11,19 +11,35 @@ from hermes.settings import get_hermes_setting
 from ipware.ip import get_real_ip
 
 from datetime import datetime
+from crypt import crypt
+import re
+
+translation_table = "".maketrans(":;<=>?@[\]^_`", "ABCDEFGabcdef")
 
 # Helpers
-def tripcode(post):
-    """Returns the tripcode for an author block"""
-    return post
+def generate_tripcode(author_field):
+    """Returns the insecure tripcode for an author block"""
+    author = author_field
+    tripcode = None
+    match = re.search(r"([^#]*)#(.*)", author_field)
+    if match:
+        author = match.group(1)
+        trip_key = match.group(2)
+        salt = trip_key + "H.."
+        salt = salt[1:3]
+        salt.translate(translation_table)
+        tripcode = crypt(trip_key, salt)[-10:]
+    return author, tripcode
 
 def create_post(thread, author, title, email, ip, superuser, text):
     """Create but don't save a new Post object"""
     if not text:
         return False
+    author, tripcode = generate_tripcode(author)
     new_post = Post()
     new_post.thread = thread
     new_post.author = author or "Anonymous"
+    new_post.tripcode = tripcode
     new_post.title = title
     new_post.email = email
     new_post.text = text

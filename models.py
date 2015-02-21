@@ -23,6 +23,7 @@ class Thread(models.Model):
 class Post(models.Model):
     thread = models.ForeignKey(Thread)
     author = models.CharField(max_length=30)
+    tripcode = models.CharField(max_length=30, null=True)
     email = models.CharField(max_length=30)
     title = models.CharField(max_length=30)
     text = models.CharField(max_length=1000)

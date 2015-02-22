@@ -40,18 +40,11 @@
           <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
             <div class="postInfo">
               <span class="subject">{{post.title}}</span>
-              <span class="author">
-                {% if post.email %}
-                <a class="email" href="mailto:{{post.email}}">
-                {% endif %}
-                {{post.author}}
-                {% if post.email %}
-                </a>
-                {% endif %}
-              </span>
-              {% if post.tripcode %}
+              {% spaceless %}
+              <span class="author">{% if post.email %}<a class="email" href="mailto:{{post.email}}">{% endif %}{{post.author}}{% if post.email %}</a>{% endif %}</span>{% if post.tripcode %}
               <span class="tripcode">#{{post.tripcode}}</span>
               {% endif %}
+              {% endspaceless %}
               <span class="timestamp">{{post.time}}</span>
               <span class="postId">No.{{post.id}}</span>
               {% if hermes_authenticated %}

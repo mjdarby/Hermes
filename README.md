@@ -23,7 +23,7 @@ Hermes is a fully functional textboard, providing such amazing features as:
 * NO IMAGES. TEXT ONLY.
 
 # Installation
-Hermes is a Django application, but not a project in itself. To use Hermes, you will need to install Django normally
+Hermes is a Python3 Django application, but not a project in itself. To use Hermes, you will need to install Django normally
 and include some pre-requisites. The relevant parts of the parent project's requirements.txt are as follows:
 
     Django==1.7.4

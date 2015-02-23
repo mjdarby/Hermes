@@ -10,9 +10,12 @@ from hermes.settings import get_hermes_setting
 
 from ipware.ip import get_real_ip
 
-from datetime import datetime
-from crypt import crypt
 import re
+import json
+from datetime import datetime
+from passlib.hash import des_crypt
+from urllib.request import urlopen
+from urllib.parse import urlencode
 
 translation_table = str.maketrans(":;<=>?@[\]^_`", "ABCDEFGabcdef")
 
@@ -28,7 +31,7 @@ def generate_tripcode(author_field):
         salt = trip_key + "H.."
         salt = salt[1:3]
         salt.translate(translation_table)
-        tripcode = crypt(trip_key, salt)[-10:]
+        tripcode = des_crypt.encrypt(trip_key, salt=salt)[-10:]
     return author, tripcode
 
 def create_post(thread, author, title, email, ip, superuser, text):
@@ -43,7 +46,7 @@ def create_post(thread, author, title, email, ip, superuser, text):
     new_post.title = title
     new_post.email = email
     new_post.text = text
-    new_post.ip = "None" if not ip else ip
+    new_post.ip = "None" if not ip else str(ip)
     new_post.admin_post = superuser
     new_post.time = datetime.now()
     return new_post
@@ -80,13 +83,33 @@ def delete_thread(thread_id):
     Post.objects.filter(thread=thread_id).delete()
     thread.delete()
 
+def test_captcha(request):
+    if not request.POST or 'g-recaptcha-response' not in request.POST:
+        return False
+    captcha_response = request.POST['g-recaptcha-response']
+    captcha_key = get_hermes_setting('recaptcha_key')
+    captcha_url = "https://www.google.com/recaptcha/api/siteverify"
+    captcha_data = {'secret':captcha_key,
+                    'response':captcha_response}
+    data = urlencode(captcha_data)
+    data = data.encode('utf-8')
+    try:
+        captcha_reply = urlopen(captcha_url, data=data).read().decode('utf-8')
+    except Exception as e:
+        print(e)
+        return False
+    captcha_json = json.loads(captcha_reply)
+    if 'success' in captcha_json:
+        return captcha_json['success']
+    else:
+        return False
+
 # Views
 def index(request):
     return render(request, 'hermes/index.html')
 
 def static(request, static_html):
     return render(request, 'hermes/' + static_html + '.html')
-
 
 def board(request, board_id):
     board = get_object_or_404(Board, id=board_id)
@@ -121,22 +144,29 @@ def board(request, board_id):
     return render(request, 'hermes/board.html', context)
 
 def thread(request, board_id, thread_id):
+    board = get_object_or_404(Board, id=board_id)
     post_list = Post.objects.filter(thread=thread_id).order_by('time')
     new_board_form = create_new_board_form(request)
     if not post_list:
         raise Http404
     context = {'post_list': post_list, 'form': new_board_form,
-               'board_id': board_id, 'thread_id': thread_id}
+               'board': board, 'thread_id': thread_id}
     return render(request, 'hermes/thread.html', context)
 
 def post(request, board_id):
     if is_banned(request):
         return banned(request)
+
     try:
         form = get_cleaned_board_form_data(request.POST)
     except Exception as e:
         raise Http404
     the_board = get_object_or_404(Board, id=board_id)
+    if the_board.recaptcha_enabled and not test_captcha(request):
+        error_message = "Something went wrong with your captcha, please try again."
+        messages.add_message(request, messages.ERROR, error_message)
+        return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+
     new_thread = Thread()
     new_thread.board = the_board
     new_thread.time_posted = datetime.now()
@@ -173,6 +203,12 @@ def reply(request, board_id, thread_id):
     # No banned losers allowed!
     if is_banned(request):
         return banned(request)
+
+    the_board = get_object_or_404(Board, id=board_id)
+    if the_board.recaptcha_enabled and not test_captcha(request):
+        error_message = "Something went wrong with your captcha, please try again."
+        messages.add_message(request, messages.ERROR, error_message)
+        return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, thread_id)))
 
     # No posting over max number of posts!
     all_posts = Post.objects.filter(thread=thread_id)

@@ -71,6 +71,11 @@ blockquote {
 .message {
     color: #B23252;
     font-weight:bold;
+    padding: 10px;
+}
+
+.recaptcha {
+    padding-bottom: 10px;
 }
 
 /* Bootstrap replacements */

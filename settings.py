@@ -12,7 +12,8 @@ from django.conf import settings
 
 HERMES_DEFAULTS = {'max_posts': 100,
                    'posts_before_autosage': 100,
-                   'max_threads': 50}
+                   'max_threads': 50,
+                   'recaptcha_key': ''}
 
 # Start with a copy of default settings
 HERMES = HERMES_DEFAULTS.copy()

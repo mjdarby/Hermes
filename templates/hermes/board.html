@@ -23,7 +23,13 @@
       <form class="form-horizontal" action="{% url 'hermes:new' board.id %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form layout='horizontal' %}
-        {% buttons submit='Post Thread' layout='horizontal' %}
+        {% buttons layout='horizontal' %}
+          {% if board.recaptcha_enabled %}
+          <div class="recaptcha g-recaptcha" data-sitekey="{{hermes_recaptcha_sitekey}}"></div>
+          {% endif %}
+          <button type="submit" class="btn btn-primary">
+            Post Thread
+          </button>
         {% endbuttons %}
       </form>
     </div>

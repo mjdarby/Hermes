@@ -18,6 +18,7 @@ Hermes is a fully functional textboard, providing such amazing features as:
 * Deletion of posts from your own IP!
 * Banning of posters by superusers!
 * Greentext that is actually blue!
+* reCAPTCHA on a per-board basis!
 * A 'customisable' stylesheet, so your board doesn't have to look like a 4chan ripoff!
 * Mobile-friendly!
 * NO IMAGES. TEXT ONLY.
@@ -54,6 +55,9 @@ If you want your project to look just like the demo Hermes instance, you'll need
 django-ipware is used for detecting a user's IP address in case we have them on the ban-list. It's fairly young, but it seems
 to do its job well.
 
+## reCAPTCHA
+Google's reCAPTCHA system is supported by configuring your secret and sitekey keys inside your settings. See the Configuration section for more information! Once those values are set up, you can set 'recaptcha_enabled' to True on one of your boards to get the functionality.
+
 ## Database
 Hermes uses the standard Django model stuff, so it will happily attempt to use the database you specify in the project proper.
 The demo happily uses a Postgres backend.
@@ -78,6 +82,14 @@ bump, which is a bug to fix. Disabled if set to a False-evaluating value.
 If the number of threads surpasses this value, the oldest thread will be pruned from the database. Disabled
 if set to a False-evaluating value.
 
+    recaptcha_key
+
+Your secret reCAPTCHA key if you intend to use Google's reCAPTCHA.
+
+    recaptcha_sitekey
+
+Your public sitekey reCAPTCHA key if you intend to use Google's reCAPTCHA.
+
 Configuration is heavily 'inspired' by django-bootstrap3 and can be set in your project's settings.py like this:
 
     HERMES = {}
@@ -98,11 +110,11 @@ Hermes is now functionally complete, but has several more features that I'd like
 * Modify urls to use actual board names instead of ids
 * Posts should have per board numbering (currently global)
 * Post linking (>>2423 for instance)
-* Tripcodes
-* reCAPTCHA support
+* Secure Tripcodes
 * Dedicated admin interface, rather than piggybacking off Django's default admin
 * Better interface (Stats in each thread, disable posting at MAX_POSTS, etc)
 * Pagination of threads in boards
+* Fix having the reCAPTCHA script in the header of every page
 * Fix autosaging so you can't abuse the current logic to keep a thread bumped.
 
 # Testing

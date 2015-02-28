@@ -107,7 +107,6 @@ they have the same IP as when they first made the post. Deleting the first post 
 
 # Wishlist
 Hermes is now functionally complete, but has several more features that I'd like to implement.
-* Modify urls to use actual board names instead of ids
 * Posts should have per board numbering (currently global)
 * Post linking (>>2423 for instance)
 * Secure Tripcodes
@@ -115,7 +114,7 @@ Hermes is now functionally complete, but has several more features that I'd like
 * Better interface (Stats in each thread, disable posting at MAX_POSTS, etc)
 * Pagination of threads in boards
 * Fix having the reCAPTCHA script in the header of every page
-* Fix autosaging so you can't abuse the current logic to keep a thread bumped.
+* Sticky posts
 
 # Testing
 Ahaha. Ahahaha! AHAHAHA! Test suite to come.

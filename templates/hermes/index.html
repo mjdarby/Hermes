@@ -12,7 +12,7 @@
 	{% if hermes_board_list %}
 	<ul>
 	  {% for board in hermes_board_list %}
-	  <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
+	  <li><a href="{% url 'hermes:board' board.short_name %}">{{board.title}}</a></li>
 	  {% endfor %}
 	</ul>
 	{% else %}

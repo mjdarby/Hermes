@@ -18,7 +18,7 @@
               data-target=".postForm" aria-expanded="false" aria-controls="postForm">Post Reply</button>
     </div>
     <div class="postForm collapse">
-      <form class="form-horizontal" action="{% url 'hermes:reply' board.id thread_id %}" method="post">
+      <form class="form-horizontal" action="{% url 'hermes:reply' board.short_name thread_id %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form layout='horizontal' %}
         {% buttons layout='horizontal' %}
@@ -36,7 +36,7 @@
 <div class="row">
   <div class="col-md-12 col-xs-12">
     <hr/>
-    [<a href="{% url 'hermes:board' board.id %}">Back</a>]
+    [<a href="{% url 'hermes:board' board.short_name %}">Back</a>]
     <hr/>
       {%if post_list %}
       {% for post in post_list %}
@@ -58,10 +58,10 @@
               </span>
               {% endif %}
               {% if hermes_authenticated or hermes_user_ip == post.ip %}
-              <span class="postLink">[<a href="{% url 'hermes:delete' board.id post.id %}">Delete</a>]</span>
+              <span class="postLink">[<a href="{% url 'hermes:delete' board.short_name post.id %}">Delete</a>]</span>
               {% endif %}
               {% if hermes_authenticated %}
-              <span class="postLink">[<a href="{% url 'hermes:ban' board.id post.id %}">Ban</a>]</span>
+              <span class="postLink">[<a href="{% url 'hermes:ban' board.short_name post.id %}">Ban</a>]</span>
               {% endif %}
             </div>
             <blockquote class="post">

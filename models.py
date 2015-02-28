@@ -3,6 +3,7 @@ from datetime import datetime
 
 class Board(models.Model):
     title = models.CharField(max_length=50)
+    short_name = models.CharField(max_length=50, default="gen")
     recaptcha_enabled = models.BooleanField(default=False)
 
     def __str__(self):
@@ -12,6 +13,8 @@ class Thread(models.Model):
     board = models.ForeignKey(Board)
     time_posted = models.DateTimeField()
     time_last_updated = models.DateTimeField()
+    autosaging = models.BooleanField(default=False)
+    sticky = models.BooleanField(default=False)
 
     def save(self, bumped, *args, **kwargs):
         if bumped:

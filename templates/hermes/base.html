@@ -26,7 +26,7 @@
     <ul class="nav navbar-nav">
       {% for board in hermes_board_list %}
       <li><p class="navbar-text">|</p></li>
-      <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
+      <li><a href="{% url 'hermes:board' board.short_name %}">{{board.title}}</a></li>
       {% endfor %}
       {% if authenticated %}
       <li><p class="navbar-text">Authenticated</p></li>
@@ -44,7 +44,7 @@
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Boards<span class="caret"></span></a>
 	<ul class="dropdown-menu" role="menu">
 	  {% for board in hermes_board_list %}
-	  <li><a href="{% url 'hermes:board' board.id %}">{{board.title}}</a></li>
+	  <li><a href="{% url 'hermes:board' board.short_name %}">{{board.title}}</a></li>
 	  {% endfor %}
 	</ul>
       </li>

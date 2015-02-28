@@ -20,7 +20,7 @@
               aria-controls="postForm">Post Thread</button>
     </div>
     <div class="postForm collapse">
-      <form class="form-horizontal" action="{% url 'hermes:new' board.id %}" method="post">
+      <form class="form-horizontal" action="{% url 'hermes:new' board.short_name %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form layout='horizontal' %}
         {% buttons layout='horizontal' %}
@@ -59,13 +59,23 @@
               </span>
               {% endif %}
               {% if forloop.first %}
-              <span class="postLink">[<a href="{% url 'hermes:thread' board.id thread.id %}">View thread</a>]</span>
+              <span class="postLink">[<a href="{% url 'hermes:thread' board.short_name thread.id %}">View thread</a>]</span>
               {% endif %}
               {% if hermes_authenticated or hermes_user_ip == post.ip %}
-              <span class="postLink">[<a href="{% url 'hermes:delete' board.id post.id %}">Delete</a>]</span>
+              <span class="postLink">[<a href="{% url 'hermes:delete' board.short_name post.id %}">Delete</a>]</span>
               {% endif %}
               {% if hermes_authenticated %}
-              <span class="postLink">[<a href="{% url 'hermes:ban' board.id post.id %}">Ban</a>]</span>
+              <span class="postLink">[<a href="{% url 'hermes:ban' board.short_name post.id %}">Ban</a>]</span>
+              {% if thread.autosaging %}
+              <span class="postLink">[Autosaging]</span>
+              {% else %}
+              <span class="postLink">[<a href="{% url 'hermes:autosage' board.short_name thread.id %}">Autosage</a>]</span>
+              {% endif %}
+              {% if thread.sticky %}
+              <span class="postLink">[<a href="{% url 'hermes:unsticky' board.short_name thread.id %}">Unsticky</a>]</span>
+              {% else %}
+              <span class="postLink">[<a href="{% url 'hermes:sticky' board.short_name thread.id %}">Sticky</a>]</span>
+              {% endif %}
               {% endif %}
             </div>
             <blockquote class="post">
@@ -73,7 +83,7 @@
               {{post.text|hermes_common_filter:post|cut_long_comment|linebreaksbr}}
               <br/><br/>
               <span class="threadRepliesOmitted">  Comment too long. Click
-                <a href="{% url 'hermes:thread' board.id thread.id %}">here</a> to view.</span>
+                <a href="{% url 'hermes:thread' board.short_name thread.id %}">here</a> to view.</span>
               {% else %}
               {{post.text|hermes_common_filter:post|linebreaksbr}}
               {% endif %}
@@ -83,7 +93,7 @@
               <span class="threadRepliesOmitted">
                 {{thread.replies_omitted}}
                 replies omitted. Click
-                <a href="{% url 'hermes:thread' board.id thread.id %}">here</a> to view.</span>
+                <a href="{% url 'hermes:thread' board.short_name thread.id %}">here</a> to view.</span>
               {% endif %}
             </blockquote>
           </div>

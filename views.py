@@ -111,9 +111,9 @@ def index(request):
 def static(request, static_html):
     return render(request, 'hermes/' + static_html + '.html')
 
-def board(request, board_id):
-    board = get_object_or_404(Board, id=board_id)
-    thread_list = Thread.objects.filter(board=board_id).order_by('time_last_updated').reverse()
+def board(request, board_name):
+    board = get_object_or_404(Board, short_name=board_name)
+    thread_list = Thread.objects.filter(board=board.id).order_by('time_last_updated').reverse()
     if not thread_list:
         thread_list = []
     threads = []
@@ -137,14 +137,15 @@ def board(request, board_id):
 
         replies_omitted = post_count - len(last_posts) - 1
         thread_view = { 'post_list': [first_post] + last_posts,
-                        'id': thread.id, 'replies_omitted': replies_omitted }
+                        'id': thread.id, 'replies_omitted': replies_omitted,
+                        'sticky': thread.sticky, 'autosaging': thread.autosaging}
         threads.append(thread_view)
     context = {'board': board, 'threads': threads,
                'form': new_board_form}
     return render(request, 'hermes/board.html', context)
 
-def thread(request, board_id, thread_id):
-    board = get_object_or_404(Board, id=board_id)
+def thread(request, board_name, thread_id):
+    board = get_object_or_404(Board, short_name=board_name)
     post_list = Post.objects.filter(thread=thread_id).order_by('time')
     new_board_form = create_new_board_form(request)
     if not post_list:
@@ -153,7 +154,7 @@ def thread(request, board_id, thread_id):
                'board': board, 'thread_id': thread_id}
     return render(request, 'hermes/thread.html', context)
 
-def post(request, board_id):
+def post(request, board_name):
     if is_banned(request):
         return banned(request)
 
@@ -161,11 +162,11 @@ def post(request, board_id):
         form = get_cleaned_board_form_data(request.POST)
     except Exception as e:
         raise Http404
-    the_board = get_object_or_404(Board, id=board_id)
+    the_board = get_object_or_404(Board, short_name=board_name)
     if the_board.recaptcha_enabled and not test_captcha(request):
         error_message = "Something went wrong with your captcha, please try again."
         messages.add_message(request, messages.ERROR, error_message)
-        return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+        return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))
 
     new_thread = Thread()
     new_thread.board = the_board
@@ -180,10 +181,10 @@ def post(request, board_id):
         new_thread.delete()
         error_message = "This shouldn't happen, but you posted an empty message"
         messages.add_message(request, messages.ERROR, error_message)
-        return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+        return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))
     else:
         # If we hit or pass MAX_THREADS, delete the oldest ones
-        all_threads = Thread.objects.filter(board=board_id).order_by('-time_last_updated')
+        all_threads = Thread.objects.filter(board=the_board.id).order_by('-time_last_updated')
         max_threads = get_hermes_setting('max_threads')
         if (max_threads and len(all_threads) > max_threads):
             thread_count_to_delete = len(all_threads) - max_threads
@@ -194,21 +195,21 @@ def post(request, board_id):
         # Create the new post
         new_post.save()
         if noko:
-            return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, new_thread.id)))
+            return HttpResponseRedirect(reverse('hermes:thread', args=(board_name, new_thread.id)))
         else:
-            return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+            return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))
 
-def reply(request, board_id, thread_id):
+def reply(request, board_name, thread_id):
     """A POST method that attempts to post a reply to a given thread"""
     # No banned losers allowed!
     if is_banned(request):
         return banned(request)
 
-    the_board = get_object_or_404(Board, id=board_id)
+    the_board = get_object_or_404(Board, short_name=board_name)
     if the_board.recaptcha_enabled and not test_captcha(request):
         error_message = "Something went wrong with your captcha, please try again."
         messages.add_message(request, messages.ERROR, error_message)
-        return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, thread_id)))
+        return HttpResponseRedirect(reverse('hermes:thread', args=(board_name, thread_id)))
 
     # No posting over max number of posts!
     all_posts = Post.objects.filter(thread=thread_id)
@@ -216,7 +217,7 @@ def reply(request, board_id, thread_id):
     if max_posts and all_posts.count() >= max_posts:
         error_message = "Maximum number of replies reached, start a new thread!"
         messages.add_message(request, messages.ERROR, error_message)
-        return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, thread_id)))
+        return HttpResponseRedirect(reverse('hermes:thread', args=(board_name, thread_id)))
 
     # Okay, fine, you can post.
     try:
@@ -231,7 +232,9 @@ def reply(request, board_id, thread_id):
     # Bump logic and sage
     posts_before_autosage = get_hermes_setting('posts_before_autosage')
     autosage = posts_before_autosage and all_posts.count() >= posts_before_autosage
-    bump = 'sage' not in form['email'].lower() and not autosage
+    the_thread.autosaging = the_thread.autosaging or autosage
+
+    bump = 'sage' not in form['email'].lower() and not the_thread.autosaging
 
     # Stay in thread if noko in email field
     noko = 'noko' in form['email'].lower()
@@ -240,19 +243,19 @@ def reply(request, board_id, thread_id):
     if not new_post:
         error_message = "This shouldn't happen, but you posted an empty message"
         messages.add_message(request, messages.ERROR, error_message)
-        return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, thread_id)))
+        return HttpResponseRedirect(reverse('hermes:thread', args=(board_name, thread_id)))
     else:
         new_post.save()
         the_thread.save(bump)
         if noko:
-            return HttpResponseRedirect(reverse('hermes:thread', args=(board_id, thread_id)))
+            return HttpResponseRedirect(reverse('hermes:thread', args=(board_name, thread_id)))
         else:
-            return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+            return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))
 
 def banned(request):
     return render(request, 'hermes/banned.html')
 
-def ban(request, board_id, post_id):
+def ban(request, board_name, post_id):
     if not request.user.is_superuser:
         raise Http404
     post = get_object_or_404(Post, pk=post_id)
@@ -261,9 +264,9 @@ def ban(request, board_id, post_id):
     new_ban.ip = ban_ip
     new_ban.save()
     messages.add_message(request, messages.INFO, "{} banned.".format(ban_ip))
-    return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+    return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))
 
-def delete(request, board_id, post_id):
+def delete(request, board_name, post_id):
     """Allows a user or admin to delete a post, or a whole thread if
     the first post is deleted."""
     post = get_object_or_404(Post, pk=post_id)
@@ -279,4 +282,31 @@ def delete(request, board_id, post_id):
     else:
         post.delete()
     messages.add_message(request, messages.INFO, 'Post deleted.')
-    return HttpResponseRedirect(reverse('hermes:board', args=(board_id,)))
+    return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))
+
+def autosage(request, board_name, thread_id):
+    if not request.user.is_superuser:
+        raise Http404
+    thread = get_object_or_404(Thread, pk=thread_id)
+    thread.autosaging = True
+    thread.save(False)
+    messages.add_message(request, messages.INFO, 'Thread autosaged.')
+    return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))
+
+def sticky(request, board_name, thread_id):
+    if not request.user.is_superuser:
+        raise Http404
+    thread = get_object_or_404(Thread, pk=thread_id)
+    thread.sticky = True
+    thread.save(False)
+    messages.add_message(request, messages.INFO, 'Thread stickied.')
+    return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))
+
+def unsticky(request, board_name, thread_id):
+    if not request.user.is_superuser:
+        raise Http404
+    thread = get_object_or_404(Thread, pk=thread_id)
+    thread.sticky = False
+    thread.save(False)
+    messages.add_message(request, messages.INFO, 'Thread unstickied.')
+    return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))

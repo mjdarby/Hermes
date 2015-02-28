@@ -147,6 +147,8 @@ def board(request, board_name):
 def thread(request, board_name, thread_id):
     board = get_object_or_404(Board, short_name=board_name)
     thread = get_object_or_404(Thread, id=thread_id)
+    if thread.board != board:
+        raise Http404
     post_list = Post.objects.filter(thread=thread_id).order_by('time')
     new_board_form = create_new_board_form(request)
     if not post_list:

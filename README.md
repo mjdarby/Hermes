@@ -14,6 +14,7 @@ Hermes is a fully functional textboard, providing such amazing features as:
 * Posting replies in said threads!
 * Ordering of threads by latest post!
 * Configurable maximum number of threads + posts!
+* Sticky posts!
 * SAGE and NOKO!
 * Deletion of posts from your own IP!
 * Banning of posters by superusers!
@@ -114,7 +115,6 @@ Hermes is now functionally complete, but has several more features that I'd like
 * Better interface (Stats in each thread, disable posting at MAX_POSTS, etc)
 * Pagination of threads in boards
 * Fix having the reCAPTCHA script in the header of every page
-* Sticky posts
 
 # Testing
 Ahaha. Ahahaha! AHAHAHA! Test suite to come.

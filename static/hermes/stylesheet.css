@@ -68,6 +68,11 @@ blockquote {
     color: #3281B2;
 }
 
+.sticky {
+    color: #3281B2;
+    font-size: smaller;
+}
+
 .message {
     color: #B23252;
     font-weight:bold;

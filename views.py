@@ -113,9 +113,13 @@ def static(request, static_html):
 
 def board(request, board_name):
     board = get_object_or_404(Board, short_name=board_name)
-    thread_list = Thread.objects.filter(board=board.id).order_by('time_last_updated').reverse()
+    stickied_threads = (Thread.objects.filter(board=board.id, sticky=True)
+                        .order_by('time_posted').reverse())
+    thread_list = (Thread.objects.filter(board=board.id, sticky=False)
+                   .order_by('time_last_updated').reverse())
     if not thread_list:
         thread_list = []
+    thread_list = list(stickied_threads) + list(thread_list)
     threads = []
     new_board_form = create_new_board_form(request)
     for thread in thread_list:
@@ -188,8 +192,9 @@ def post(request, board_name):
         messages.add_message(request, messages.ERROR, error_message)
         return HttpResponseRedirect(reverse('hermes:board', args=(board_name,)))
     else:
-        # If we hit or pass MAX_THREADS, delete the oldest ones
-        all_threads = Thread.objects.filter(board=the_board.id).order_by('-time_last_updated')
+        # If we hit or pass MAX_THREADS, delete the oldest ones that aren't sticked
+        all_threads = (Thread.objects.filter(board=the_board.id, sticky=False)
+                       .order_by('-time_last_updated'))
         max_threads = get_hermes_setting('max_threads')
         if (max_threads and len(all_threads) > max_threads):
             thread_count_to_delete = len(all_threads) - max_threads

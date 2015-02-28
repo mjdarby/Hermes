@@ -48,6 +48,9 @@
         <div class="col-md-12 col-xs-12">
           <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
             <div class="postInfo">
+              {% if thread.sticky %}
+              <span class="sticky">(Stickied)</span>
+              {% endif %}
               <span class="subject">{{post.title}}</span>
               {% spaceless %}
               <span class="author">{% if post.email %}<a class="email" href="mailto:{{post.email}}">{% endif %}{{post.author}}{% if post.email %}</a>{% endif %}</span>{% if post.tripcode %}

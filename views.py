@@ -41,6 +41,7 @@ def create_post(thread, author, title, email, ip, superuser, text):
     author, tripcode = generate_tripcode(author)
     new_post = Post()
     new_post.thread = thread
+    new_post.board = thread.board
     new_post.author = author or "Anonymous"
     new_post.tripcode = tripcode
     new_post.title = title
@@ -140,8 +141,9 @@ def board(request, board_name):
                 pass
 
         replies_omitted = post_count - len(last_posts) - 1
+        thread_id = thread.display_id
         thread_view = { 'post_list': [first_post] + last_posts,
-                        'id': thread.id, 'replies_omitted': replies_omitted,
+                        'id': thread_id, 'replies_omitted': replies_omitted,
                         'sticky': thread.sticky, 'autosaging': thread.autosaging}
         threads.append(thread_view)
     context = {'board': board, 'threads': threads,
@@ -150,14 +152,13 @@ def board(request, board_name):
 
 def thread(request, board_name, thread_id):
     board = get_object_or_404(Board, short_name=board_name)
-    thread = get_object_or_404(Thread, id=thread_id)
-    if thread.board != board:
-        raise Http404
-    post_list = Post.objects.filter(thread=thread_id).order_by('time')
+    thread = get_object_or_404(Thread, board=board, display_id=thread_id)
+    post_list = Post.objects.filter(thread=thread.id).order_by('time')
     new_board_form = create_new_board_form(request)
     if not post_list:
         raise Http404
-    thread_view = { 'id': thread.id, 'sticky': thread.sticky,
+    thread_id = thread.display_id
+    thread_view = { 'id': thread_id, 'sticky': thread.sticky,
                     'autosaging': thread.autosaging}
     context = {'post_list': post_list, 'form': new_board_form,
                'board': board, 'thread': thread_view}
@@ -202,8 +203,10 @@ def post(request, board_name):
             for old_thread in oldest_threads:
                 delete_thread(old_thread.id)
 
-        # Create the new post
+        # Create the new post, which will give it a post ID
         new_post.save()
+        new_thread.display_id = new_post.post_id
+        new_thread.save(False)
         if noko:
             return HttpResponseRedirect(reverse('hermes:thread', args=(board_name, new_thread.id)))
         else:
@@ -234,7 +237,7 @@ def reply(request, board_name, thread_id):
         form = get_cleaned_board_form_data(request.POST)
     except Exception as e:
         raise Http404
-    the_thread = get_object_or_404(Thread, id=thread_id)
+    the_thread = get_object_or_404(Thread, display_id=thread_id)
     superuser = request.user.is_superuser
     new_post = create_post(the_thread, form['author'], form['title'],
                        form['email'], get_real_ip(request), superuser, form['text'])
@@ -268,7 +271,8 @@ def banned(request):
 def ban(request, board_name, post_id):
     if not request.user.is_superuser:
         raise Http404
-    post = get_object_or_404(Post, pk=post_id)
+    board = get_object_or_404(Board, short_name=board_name)
+    post = get_object_or_404(Post, post_id=post_id, board=board)
     ban_ip = post.ip
     new_ban = Ban()
     new_ban.ip = ban_ip
@@ -279,8 +283,9 @@ def ban(request, board_name, post_id):
 def delete(request, board_name, post_id):
     """Allows a user or admin to delete a post, or a whole thread if
     the first post is deleted."""
-    post = get_object_or_404(Post, pk=post_id)
-    thread = get_object_or_404(Thread, pk=post.thread.id)
+    board = get_object_or_404(Board, short_name=board_name)
+    post = get_object_or_404(Post, post_id=post_id, board=board)
+    thread = get_object_or_404(Thread, id=post.thread.id)
     user_ip = str(get_real_ip(request))
     if not (request.user.is_superuser or post.ip == user_ip):
         raise Http404
@@ -297,7 +302,8 @@ def delete(request, board_name, post_id):
 def autosage(request, board_name, thread_id):
     if not request.user.is_superuser:
         raise Http404
-    thread = get_object_or_404(Thread, pk=thread_id)
+    board = get_object_or_404(Board, short_name=board_name)
+    thread = get_object_or_404(Thread, board=board, display_id=thread_id)
     thread.autosaging = True
     thread.save(False)
     messages.add_message(request, messages.INFO, 'Thread autosaged.')
@@ -306,7 +312,8 @@ def autosage(request, board_name, thread_id):
 def sticky(request, board_name, thread_id):
     if not request.user.is_superuser:
         raise Http404
-    thread = get_object_or_404(Thread, pk=thread_id)
+    board = get_object_or_404(Board, short_name=board_name)
+    thread = get_object_or_404(Thread, board=board, display_id=thread_id)
     thread.sticky = True
     thread.save(False)
     messages.add_message(request, messages.INFO, 'Thread stickied.')
@@ -315,7 +322,8 @@ def sticky(request, board_name, thread_id):
 def unsticky(request, board_name, thread_id):
     if not request.user.is_superuser:
         raise Http404
-    thread = get_object_or_404(Thread, pk=thread_id)
+    board = get_object_or_404(Board, short_name=board_name)
+    thread = get_object_or_404(Thread, board=board, display_id=thread_id)
     thread.sticky = False
     thread.save(False)
     messages.add_message(request, messages.INFO, 'Thread unstickied.')

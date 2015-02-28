@@ -49,7 +49,7 @@
         <div class="col-md-12 col-xs-12">
           <div class="reply {% if forloop.first %}opReply{% else %}childReply{% endif %}">
             <div class="postInfo">
-              {% if thread.sticky %}
+              {% if forloop.first and thread.sticky %}
               <span class="sticky">(Stickied)</span>
               {% endif %}
               <span class="subject">{{post.title}}</span>
@@ -59,17 +59,17 @@
               {% endif %}
               {% endspaceless %}
               <span class="timestamp">{{post.time}}</span>
-              <span class="postId">No.{{post.id}}</span>
+              <span class="postId">No.{{post.post_id}}</span>
               {% if hermes_authenticated %}
               <span class="author">
                 {{post.ip}}
               </span>
               {% endif %}
               {% if hermes_authenticated or hermes_user_ip == post.ip %}
-              <span class="postLink">[<a href="{% url 'hermes:delete' board.short_name post.id %}">Delete</a>]</span>
+              <span class="postLink">[<a href="{% url 'hermes:delete' board.short_name post.post_id %}">Delete</a>]</span>
               {% endif %}
               {% if hermes_authenticated %}
-              <span class="postLink">[<a href="{% url 'hermes:ban' board.short_name post.id %}">Ban</a>]</span>
+              <span class="postLink">[<a href="{% url 'hermes:ban' board.short_name post.post_id %}">Ban</a>]</span>
               {% if forloop.first %}
               {% if thread.autosaging %}
               <span class="postLink">[Autosaging]</span>

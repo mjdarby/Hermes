@@ -108,7 +108,6 @@ they have the same IP as when they first made the post. Deleting the first post 
 
 # Wishlist
 Hermes is now functionally complete, but has several more features that I'd like to implement.
-* Posts should have per board numbering (currently global)
 * Post linking (>>2423 for instance)
 * Secure Tripcodes
 * Dedicated admin interface, rather than piggybacking off Django's default admin

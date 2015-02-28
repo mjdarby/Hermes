@@ -146,12 +146,15 @@ def board(request, board_name):
 
 def thread(request, board_name, thread_id):
     board = get_object_or_404(Board, short_name=board_name)
+    thread = get_object_or_404(Thread, id=thread_id)
     post_list = Post.objects.filter(thread=thread_id).order_by('time')
     new_board_form = create_new_board_form(request)
     if not post_list:
         raise Http404
+    thread_view = { 'id': thread.id, 'sticky': thread.sticky,
+                    'autosaging': thread.autosaging}
     context = {'post_list': post_list, 'form': new_board_form,
-               'board': board, 'thread_id': thread_id}
+               'board': board, 'thread': thread_view}
     return render(request, 'hermes/thread.html', context)
 
 def post(request, board_name):

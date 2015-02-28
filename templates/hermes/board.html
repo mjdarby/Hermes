@@ -6,6 +6,9 @@
 {% block content %}
 <div class="row">
   <div class="col-md-6 col-xs-12">
+    <div class="board-title">
+      {{ board.description }}
+    </div>
     {% if messages %}
     {% for message in messages %}
     <div class="message">{{message}}</div>
@@ -66,6 +69,7 @@
               {% endif %}
               {% if hermes_authenticated %}
               <span class="postLink">[<a href="{% url 'hermes:ban' board.short_name post.id %}">Ban</a>]</span>
+              {% if forloop.first %}
               {% if thread.autosaging %}
               <span class="postLink">[Autosaging]</span>
               {% else %}
@@ -75,6 +79,7 @@
               <span class="postLink">[<a href="{% url 'hermes:unsticky' board.short_name thread.id %}">Unsticky</a>]</span>
               {% else %}
               <span class="postLink">[<a href="{% url 'hermes:sticky' board.short_name thread.id %}">Sticky</a>]</span>
+              {% endif %}
               {% endif %}
               {% endif %}
             </div>

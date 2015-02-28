@@ -5,6 +5,7 @@ class Board(models.Model):
     title = models.CharField(max_length=50)
     short_name = models.CharField(max_length=50, default="gen")
     recaptcha_enabled = models.BooleanField(default=False)
+    description = models.CharField(max_length=1000, default="Board")
 
     def __str__(self):
         return self.title

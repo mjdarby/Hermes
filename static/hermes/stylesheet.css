@@ -78,6 +78,14 @@ blockquote {
     padding-bottom: 10px;
 }
 
+.board-title {
+    color: #B23252;
+    font-weight:bold;
+    text-align: center;
+    padding: 15px;
+    font-size: 18pt;
+}
+
 /* Bootstrap replacements */
 .hermes-navbar {
     border-color: #487F40;

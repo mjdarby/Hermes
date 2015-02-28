@@ -6,6 +6,9 @@
 {% block content %}
 <div class="row">
   <div class="col-md-6 col-xs-12">
+    <div class="board-title">
+      {{ board.description }}
+    </div>
     {% if messages %}
     {% for message in messages %}
     <div class="message">{{message}}</div>
@@ -15,10 +18,12 @@
       <button class="collapse in postForm btn btn-primary"
               type="button"
               data-toggle="collapse"
-              data-target=".postForm" aria-expanded="false" aria-controls="postForm">Post Reply</button>
+              data-target=".postForm"
+              aria-expanded="false"
+              aria-controls="postForm">Post Reply</button>
     </div>
     <div class="postForm collapse">
-      <form class="form-horizontal" action="{% url 'hermes:reply' board.short_name thread_id %}" method="post">
+      <form class="form-horizontal" action="{% url 'hermes:reply' board.short_name thread.id %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form layout='horizontal' %}
         {% buttons layout='horizontal' %}
@@ -62,6 +67,18 @@
               {% endif %}
               {% if hermes_authenticated %}
               <span class="postLink">[<a href="{% url 'hermes:ban' board.short_name post.id %}">Ban</a>]</span>
+              {% if forloop.first %}
+              {% if thread.autosaging %}
+              <span class="postLink">[Autosaging]</span>
+              {% else %}
+              <span class="postLink">[<a href="{% url 'hermes:autosage' board.short_name thread.id %}">Autosage</a>]</span>
+              {% endif %}
+              {% if thread.sticky %}
+              <span class="postLink">[<a href="{% url 'hermes:unsticky' board.short_name thread.id %}">Unsticky</a>]</span>
+              {% else %}
+              <span class="postLink">[<a href="{% url 'hermes:sticky' board.short_name thread.id %}">Sticky</a>]</span>
+              {% endif %}
+              {% endif %}
               {% endif %}
             </div>
             <blockquote class="post">

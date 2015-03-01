@@ -20,6 +20,16 @@ from urllib.parse import urlencode
 translation_table = str.maketrans(":;<=>?@[\]^_`", "ABCDEFGabcdef")
 
 # Helpers
+def get_post_by_board_and_id(board_name, post_id):
+    board = get_object_or_404(Board, short_name=board_name)
+    post = get_object_or_404(Post, board=board, post_id=post_id)
+    return post
+
+def get_thread_by_board_and_id(board_name, thread_id):
+    board = get_object_or_404(Board, short_name=board_name)
+    thread = get_object_or_404(Thread, board=board, display_id=thread_id)
+    return thread
+
 def generate_tripcode(author_field):
     """Returns the insecure tripcode for an author block"""
     author = author_field
@@ -152,7 +162,7 @@ def board(request, board_name):
 
 def thread(request, board_name, thread_id):
     board = get_object_or_404(Board, short_name=board_name)
-    thread = get_object_or_404(Thread, board=board, display_id=thread_id)
+    thread = get_thread_by_board_and_id(board_name, thread_id)
     post_list = Post.objects.filter(thread=thread.id).order_by('time')
     new_board_form = create_new_board_form(request)
     if not post_list:
@@ -271,8 +281,7 @@ def banned(request):
 def ban(request, board_name, post_id):
     if not request.user.is_superuser:
         raise Http404
-    board = get_object_or_404(Board, short_name=board_name)
-    post = get_object_or_404(Post, post_id=post_id, board=board)
+    post = get_post_by_board_and_id(board_name, post_id)
     ban_ip = post.ip
     new_ban = Ban()
     new_ban.ip = ban_ip
@@ -283,8 +292,7 @@ def ban(request, board_name, post_id):
 def delete(request, board_name, post_id):
     """Allows a user or admin to delete a post, or a whole thread if
     the first post is deleted."""
-    board = get_object_or_404(Board, short_name=board_name)
-    post = get_object_or_404(Post, post_id=post_id, board=board)
+    post = get_post_by_board_and_id(board_name, post_id)
     thread = get_object_or_404(Thread, id=post.thread.id)
     user_ip = str(get_real_ip(request))
     if not (request.user.is_superuser or post.ip == user_ip):
@@ -302,8 +310,7 @@ def delete(request, board_name, post_id):
 def autosage(request, board_name, thread_id):
     if not request.user.is_superuser:
         raise Http404
-    board = get_object_or_404(Board, short_name=board_name)
-    thread = get_object_or_404(Thread, board=board, display_id=thread_id)
+    thread = get_thread_by_board_and_id(board_name, thread_id)
     thread.autosaging = True
     thread.save(False)
     messages.add_message(request, messages.INFO, 'Thread autosaged.')
@@ -312,8 +319,7 @@ def autosage(request, board_name, thread_id):
 def sticky(request, board_name, thread_id):
     if not request.user.is_superuser:
         raise Http404
-    board = get_object_or_404(Board, short_name=board_name)
-    thread = get_object_or_404(Thread, board=board, display_id=thread_id)
+    thread = get_thread_by_board_and_id(board_name, thread_id)
     thread.sticky = True
     thread.save(False)
     messages.add_message(request, messages.INFO, 'Thread stickied.')
@@ -322,8 +328,7 @@ def sticky(request, board_name, thread_id):
 def unsticky(request, board_name, thread_id):
     if not request.user.is_superuser:
         raise Http404
-    board = get_object_or_404(Board, short_name=board_name)
-    thread = get_object_or_404(Thread, board=board, display_id=thread_id)
+    thread = get_thread_by_board_and_id(board_name, thread_id)
     thread.sticky = False
     thread.save(False)
     messages.add_message(request, messages.INFO, 'Thread unstickied.')

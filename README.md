@@ -25,15 +25,16 @@ Hermes is a fully functional textboard, providing such amazing features as:
 * NO IMAGES. TEXT ONLY.
 
 # Installation
-Hermes is a Python3 Django application, but not a project in itself. To use Hermes, you will need to install Django normally
-and include some pre-requisites. The relevant parts of the parent project's requirements.txt are as follows:
+Hermes is a Python3 Django application, but not a project in itself. To use Hermes, you will need to install Django normally,
+create a project and include some pre-requisites. The relevant parts of the parent project's requirements.txt are as follows:
 
     Django==1.7.4
     django-bootstrap3==5.1.1
     django-ipware==0.1.0
+    passlib==1.6.2
 
-Drop this directory into your new project and make sure you include 'hermes' and 'bootstrap3' in your settings.py's
-INSTALLED_APPS list. Add the following (or something like it) to your project's urls.py:
+Drop the directory that this README is in into your new project and make sure you include 'hermes' and 'bootstrap3' in
+your settings.py's INSTALLED_APPS list. Then, add the following (or something like it) to your project's urls.py:
 
     url(r'hermes/', include('hermes.urls', namespace='hermes')),
 
